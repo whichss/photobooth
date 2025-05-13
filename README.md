@@ -162,8 +162,8 @@ set NGROK_DOMAIN=your_domain_here  (선택사항)
   - `camera_width`, `camera_height`: 카메라 해상도
 
 ### 타이머 설정 (Timer Settings)
-- `countdown_time`: 카운트다운 시간 (기본값: 5초)
-- `default_countdown`: 자동 타이머 시간 (기본값: 30초)
+- `countdown_time`: 버튼 카운트다운 (기본값: 5초)
+- `default_countdown`: 자동 카운트다 (기본값: 10초)
 
 ### 사용자 지정 (Customization)
 - **로고 변경**: `static/logo.png` 파일을 교체합니다.
