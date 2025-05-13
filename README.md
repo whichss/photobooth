@@ -212,8 +212,10 @@ set NGROK_DOMAIN=your_domain_here  (선택사항)
 
 ## 감사의 말 (Acknowledgements)
 
-- 사용된 오픈소스 라이브러리: OpenCV, Express, Node.js, ngrok 등
+- 많이 부족한 부분이 있지만, 양해해주시고 봐주시면 좋겠습니다.
+- 코드에서 더 좋은 방법이 있다면 알려주시면 감사하겠습니다.
 - 코드리뷰 파일을 같이 첨부합니다. 
+
 
 ---
 
