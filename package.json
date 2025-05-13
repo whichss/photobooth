@@ -1,0 +1,23 @@
+{
+  "name": "photobooth-server",
+  "version": "1.0.0",
+  "description": "포토부스 사진 관리 및 공유 서버",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "chokidar": "^3.6.0",
+    "crypto": "^1.0.1",
+    "ejs": "^3.1.9",
+    "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "ngrok": "^5.0.0-beta.2",
+    "path": "^0.12.7",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

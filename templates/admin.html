@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>photobooth manger</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f9fafb;
+        }
+        
+        .card {
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab-active {
+            background-color: #f3f4f6;
+            color: #111827;
+            font-weight: 500;
+        }
+        
+        .dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dialog-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            max-width: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <header class="bg-white border-b">
+        <div class="container mx-auto py-4 px-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-rose-600">photobooth manger</h1>
+                <a href="/" class="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50">홍보web으로 이동</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto py-8 px-4">
+        <div class="w-full mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex border rounded-md overflow-hidden">
+                    <button id="gridViewTab" class="px-4 py-2 tab-active" onclick="switchTab('grid')">그리드 보기</button>
+                    <button id="listViewTab" class="px-4 py-2" onclick="switchTab('list')">리스트 보기</button>
+                </div>
+            </div>
+
+            <div id="gridView" class="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- 그리드 뷰 콘텐츠 (JavaScript로 채워짐) -->
+                <div class="col-span-full text-center py-12 text-gray-500">
+                    세션 데이터를 불러오는 중...
+                </div>
+    </div>
+
+            <div id="listView" class="mt-6 hidden">
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">미리보기</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">날짜</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+            </tr>
+        </thead>
+                        <tbody id="tableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- 리스트 뷰 콘텐츠 (JavaScript로 채워짐) -->
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                    세션 데이터를 불러오는 중...
+                </td>
+            </tr>
+        </tbody>
+    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 상태 및 전역 변수
+        let currentView = 'grid';
+        let sessions = [];
+        let selectedSession = null;
+        let autoRefreshTimer;
+        const REFRESH_INTERVAL = 30000; // 30초마다 자동 새로고침
+        const NGROK_DOMAIN = 'tight-scorpion-comic.ngrok-free.app';
+        
+        // 인증 파라미터 가져오기 
+        const urlParams = new URLSearchParams(window.location.search);
+        const authParam = urlParams.get('auth');
+        
+        // 모든 API 요청에 인증 파라미터 추가 함수
+        function getAuthUrl(url) {
+            if (!authParam) return url;
+            return url + (url.includes('?') ? '&' : '?') + 'auth=' + encodeURIComponent(authParam);
+        }
+        
+        // 날짜 포맷팅 함수
+        function formatDate(timestamp) {
+            const date = new Date(timestamp * 1000);
+            return `${date.getFullYear()}년 ${String(date.getMonth() + 1).padStart(2, '0')}월 ${String(date.getDate()).padStart(2, '0')}일 ${String(date.getHours()).padStart(2, '0')}시 ${String(date.getMinutes()).padStart(2, '0')}분`;
+        }
+        
+        // 페이지 로드시 세션 데이터 가져오기
+        window.addEventListener('load', function() {
+            loadSessions();
+            startAutoRefresh();
+            
+            // 페이지 가시성 변경 시 자동 새로고침 제어
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+        });
+        
+        // 자동 새로고침 시작
+        function startAutoRefresh() {
+            // 기존 타이머가 있으면 제거
+            if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+            }
+            
+            // 새 타이머 설정
+            autoRefreshTimer = setInterval(() => {
+                console.log('자동 새로고침 중...');
+                loadSessions();
+            }, REFRESH_INTERVAL);
+            
+            console.log('자동 새로고침 시작');
+        }
+        
+        // 자동 새로고침 중지
+        function stopAutoRefresh() {
+            if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+                autoRefreshTimer = null;
+                console.log('자동 새로고침 중지');
+            }
+        }
+        
+        // 페이지 가시성 변경 처리
+        function handleVisibilityChange() {
+            if (document.hidden) {
+                // 페이지가 보이지 않을 때는 새로고침 중지
+                stopAutoRefresh();
+            } else {
+                // 페이지가 다시 보일 때는 즉시 새로고침 및 타이머 재시작
+                loadSessions();
+                startAutoRefresh();
+            }
+        }
+        
+        // 세션 데이터 로드
+        function loadSessions() {
+            fetch(getAuthUrl('/api/photos'))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('서버 오류');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    sessions = data;
+                    renderGridView();
+                    renderListView();
+                })
+                .catch(error => {
+                    console.error('데이터 로드 오류:', error);
+                    showError('세션 데이터를 불러올 수 없습니다');
+                });
+        }
+        
+        // 그리드 뷰 렌더링
+        function renderGridView() {
+            const gridView = document.getElementById('gridView');
+            
+            if (!sessions || sessions.length === 0) {
+                gridView.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">아직 사진이 없습니다</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            sessions.forEach(session => {
+                html += renderGridItem(session);
+            });
+            
+            gridView.innerHTML = html;
+        }
+        
+        function renderGridItem(session) {
+            // 세션에 최종 이미지가 없거나 임시 이미지인 경우 건너뜀
+            if (!session.final_img || session.final_img.includes('temp_')) return;
+            
+            return `
+                <div class="card relative bg-white p-4 rounded-lg shadow">
+                    <div class="mb-4 aspect-[3/4] bg-gray-100 rounded overflow-hidden">
+                        <img src="${session.final_img}" alt="Photo ${session.hash}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 viewBox=%220 0 100 100%22><rect width=%22100%%22 height=%22100%%22 fill=%22%23f3f4f6%22></rect><text x=%2250%%22 y=%2250%%22 font-family=%22sans-serif%22 font-size=%2220%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23d1d5db%22>이미지 없음</text></svg>'">
+                    </div>
+                    <div class="text-sm text-gray-500 mb-2">ID: ${session.hash}</div>
+                    <div class="text-sm text-gray-500 mb-4">날짜: ${formatDate(session.created_at)}</div>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-50" onclick="showQrCode('${session.hash}')">
+                            <i class="fas fa-qrcode mr-1"></i> QR 코드
+                        </button>
+                        <a href="${session.final_img}" download class="px-3 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-50">
+                            <i class="fas fa-download mr-1"></i> 다운로드
+                        </a>
+                        <button class="px-3 py-1.5 text-sm rounded border border-rose-300 text-rose-600 hover:bg-rose-50" onclick="deleteSession('${session.hash}')">
+                            <i class="fas fa-trash-alt mr-1"></i> 삭제
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 리스트 뷰 렌더링
+        function renderListView() {
+            const tableBody = document.getElementById('tableBody');
+            let html = '';
+            
+            if (sessions.length === 0) {
+                html = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                            표시할 세션이 없습니다
+                        </td>
+                    </tr>
+                `;
+            } else {
+                sessions.forEach(session => {
+                    // 세션에 최종 이미지가 없거나 임시 이미지인 경우 건너뜀
+                    if (!session.final_img || session.final_img.includes('temp_')) return;
+                    
+                    html += `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">${session.hash}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="w-16 h-16 overflow-hidden rounded">
+                                    <img src="${session.final_img}" alt="Photo ${session.hash}" class="w-full h-full object-cover rounded" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 viewBox=%220 0 100 100%22><rect width=%22100%%22 height=%22100%%22 fill=%22%23f3f4f6%22></rect><text x=%2250%%22 y=%2250%%22 font-family=%22sans-serif%22 font-size=%2212%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23d1d5db%22>No Image</text></svg>'">
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">${formatDate(session.created_at)}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <button class="text-rose-600 hover:text-rose-800" onclick="showQrCode('${session.hash}')">
+                                    <i class="fas fa-qrcode mr-1"></i> QR 코드 보기
+                                </button>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex gap-2">
+                                    <a href="${session.final_img}" download class="text-gray-600 hover:text-gray-800">
+                                        <i class="fas fa-download mr-1"></i> 다운로드
+                                    </a>
+                                    <button class="text-rose-600 hover:text-rose-800" onclick="deleteSession('${session.hash}')">
+                                        <i class="fas fa-trash-alt mr-1"></i> 삭제
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            tableBody.innerHTML = html;
+        }
+        
+        // 탭 전환
+        function switchTab(viewType) {
+            currentView = viewType;
+            
+            // 탭 상태 업데이트
+            document.getElementById('gridViewTab').classList.toggle('tab-active', viewType === 'grid');
+            document.getElementById('listViewTab').classList.toggle('tab-active', viewType === 'list');
+            
+            // 뷰 표시/숨김
+            document.getElementById('gridView').style.display = viewType === 'grid' ? 'grid' : 'none';
+            document.getElementById('listView').style.display = viewType === 'list' ? 'block' : 'none';
+        }
+        
+        // 클립보드에 복사
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('링크가 클립보드에 복사되었습니다.');
+            }).catch(err => {
+                console.error('클립보드 복사 실패:', err);
+            });
+        }
+        
+        // 세션 삭제
+        function deleteSession(hash) {
+            if (!confirm('정말로 이 세션을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                return;
+            }
+            
+            // 로딩 표시
+            showLoading();
+            
+            // 삭제 API 호출 (인증 정보 포함)
+            fetch(getAuthUrl(`/api/delete-session/${hash}`), {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('삭제 실패');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // 성공 시 세션 목록 새로고침
+                    loadSessions();
+                    showSuccess(`세션이 삭제되었습니다: ${data.message}`);
+                } else {
+                    showError(data.error || '알 수 없는 오류');
+                }
+            })
+            .catch(error => {
+                console.error('삭제 오류:', error);
+                showError('세션을 삭제하는 중 오류가 발생했습니다');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+        }
+        
+        // 로딩 표시
+        function showLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loadingOverlay';
+            loadingDiv.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            loadingDiv.innerHTML = `
+                <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-rose-600 mx-auto"></div>
+                    <p class="mt-2">처리 중...</p>
+                </div>
+            `;
+            document.body.appendChild(loadingDiv);
+        }
+
+        // 로딩 숨기기
+        function hideLoading() {
+            const loadingDiv = document.getElementById('loadingOverlay');
+            if (loadingDiv) {
+                loadingDiv.remove();
+            }
+        }
+
+        // 성공 메시지 표시
+        function showSuccess(message) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-success';
+            statusMessage.style.display = 'block';
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // 오류 메시지 표시
+        function showError(message) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-error';
+            statusMessage.style.display = 'block';
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 다이얼로그 외부 클릭 시 닫기
+        window.addEventListener('click', function(event) {
+            const dialog = document.getElementById('qrDialog');
+            if (event.target === dialog) {
+                closeQrDialog();
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,108 @@
+/* 기본 스타일 */
+body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+/* 카메라 프리뷰 스타일 */
+.camera-preview {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 75%; /* 4:3 비율 */
+    overflow: hidden;
+    background-color: #1a1a1a;
+}
+
+.camera-preview img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 촬영된 사진 스타일 */
+.captured-photo {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%; /* 1:1 비율 */
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: #2d2d2d;
+}
+
+.captured-photo img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 카운트다운 스타일 */
+.countdown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 8rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.scale-in {
+    animation: scaleIn 0.3s ease-in-out;
+}
+
+/* 버튼 호버 효과 */
+.hover-effect {
+    transition: transform 0.2s ease-in-out;
+}
+
+.hover-effect:hover {
+    transform: translateY(-2px);
+}
+
+/* 프레임 색상 버튼 스타일 */
+.frame-color-btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.frame-color-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.frame-color-btn.selected {
+    border: 2px solid #3b82f6;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .countdown {
+        font-size: 6rem;
+    }
+} 

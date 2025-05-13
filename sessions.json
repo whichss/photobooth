@@ -1,0 +1,9 @@
+{
+  "example": {
+    "folder": "photos/example",
+    "photos": [],
+    "gif": null,
+    "created_at": 1746918535.8435981,
+    "qr_url": "http://localhost:3000/photo/example"
+  }
+}

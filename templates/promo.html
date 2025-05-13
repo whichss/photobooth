@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>photobooth gallery</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        body {
+            font-family: 'Pretendard', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #fef2f2, #fce7f3);
+        }
+        
+        .photo-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            aspect-ratio: 3/4;
+        }
+        
+        .photo-item:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .photo-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .photo-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: flex-end;
+            padding: 1rem;
+        }
+        
+        .photo-item:hover .photo-overlay {
+            opacity: 1;
+        }
+        
+        .photo-info {
+            color: white;
+        }
+        
+        .photo-date {
+            font-weight: 500;
+        }
+        
+        .photo-link {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .photo-link svg {
+            width: 1rem;
+            height: 1rem;
+            margin-left: 0.25rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen bg-gradient-to-b from-rose-50 to-pink-100">
+        <header class="container mx-auto py-8 px-4">
+            <div class="flex flex-col items-center text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold text-rose-600 mb-4">photobooth gallery</h1>
+                <p class="text-lg text-gray-700 max-w-2xl">
+                    특별한 순간을 담아내는 이곳에 오신 것을 환영합니다. 아름다운 추억을 만들어보세요.
+                </p>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 pb-16">
+            <div id="photo-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="loading">사진을 불러오는 중...</div>
+            </div>
+        </main>
+
+        <footer class="container mx-auto py-8 px-4 text-center text-gray-600">
+            <p>© 2025 photobooth.All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let autoRefreshTimer;
+        const REFRESH_INTERVAL = 30000; // 30초마다 자동 새로고침
+        
+        // 페이지 로드시 사진 목록 가져오기
+        window.addEventListener('load', function() {
+            loadPhotos();
+            startAutoRefresh();
+            
+            // 페이지 가시성 변경 시 자동 새로고침 제어
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+        });
+        
+        // 자동 새로고침 시작
+        function startAutoRefresh() {
+            if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+            }
+            autoRefreshTimer = setInterval(loadPhotos, REFRESH_INTERVAL);
+        }
+        
+        // 페이지 가시성 변경 처리
+        function handleVisibilityChange() {
+            if (document.hidden) {
+                clearInterval(autoRefreshTimer);
+            } else {
+                loadPhotos();
+                startAutoRefresh();
+            }
+        }
+        
+        // 사진 목록 로드
+        async function loadPhotos() {
+            try {
+                const response = await fetch('/api/photos');
+                if (!response.ok) throw new Error('사진을 불러올 수 없습니다');
+                
+                const photos = await response.json();
+                renderPhotos(photos);
+            } catch (error) {
+                console.error('사진 로드 오류:', error);
+                showError('사진을 불러오는 중 오류가 발생했습니다');
+            }
+        }
+
+        // 사진 목록 렌더링
+        function renderPhotos(photos) {
+            const grid = document.getElementById('photo-grid');
+            
+            if (!photos || photos.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">표시할 사진이 없습니다</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            photos.forEach(photo => {
+                // 최종 이미지가 없거나 임시 이미지인 경우 건너뜀
+                if (!photo.final_img || photo.final_img.includes('temp_')) return;
+                
+                const date = new Date(photo.created_at * 1000);
+                const formattedDate = `${date.getFullYear()}년 ${String(date.getMonth() + 1).padStart(2, '0')}월 ${String(date.getDate()).padStart(2, '0')}일 ${String(date.getHours()).padStart(2, '0')}시 ${String(date.getMinutes()).padStart(2, '0')}분`;
+                    
+                    html += `
+                        <div class="photo-item">
+                        <img src="${photo.final_img}" alt="포토부스 사진" onerror="this.onerror=null; this.src='/static/error_image.png'">
+                            <div class="photo-overlay">
+                                <div class="photo-info">
+                                <div class="photo-date">${formattedDate}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            
+            grid.innerHTML = html;
+        }
+
+        // 에러 표시
+        function showError(message) {
+            document.getElementById('photo-grid').innerHTML = `
+                <div class="col-span-full text-center py-12 text-red-500">
+                    ${message}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html> 

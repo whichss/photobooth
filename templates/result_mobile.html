@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Masterpiece - 사진 다운로드</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        :root {
+            --primary: #2D3250;
+            --secondary: #424769;
+            --background: #fafafa;
+            --surface: #ffffff;
+            --text: #111111;
+            --text-secondary: #666666;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--background);
+            font-family: 'Pretendard', sans-serif;
+            color: var(--text);
+        }
+        
+        .container {
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 12px 0;
+            text-align: center;
+        }
+        
+        .logo img {
+            width: 80px;
+            margin-top: 24px;
+        }
+        
+        .preview {
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .preview img {
+            width: 100%;
+            border-radius: 12px;
+            display: block;
+        }
+        
+        .qr-display {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 70px;
+            height: 70px;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+        }
+        
+        .madeby {
+            text-align: center;
+            margin: 18px 0 8px 0;
+            color: var(--text);
+            font-size: 1.1rem;
+        }
+        
+        .download-btn {
+            display: block;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 0;
+            margin: 12px 0 8px 0;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .download-btn:hover, .download-btn:active {
+            background: var(--secondary);
+        }
+        
+        .download-all-btn {
+            background: #006064;
+        }
+        
+        .download-all-btn:hover, .download-all-btn:active {
+            background: #00838f;
+        }
+        
+        .gif-preview {
+            text-align: center;
+            margin: 20px 0;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .gif-preview h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+        
+        .gif-preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .save-tip {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+        
+        .date {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+        
+        .no-gif-msg {
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            text-align: center;
+            margin: 15px 0;
+            color: #777;
+        }
+        
+        .capture-gif-btn {
+            background: #673ab7;
+            margin-top: 10px;
+        }
+        
+        .capture-gif-btn:hover, .capture-gif-btn:active {
+            background: #5e35b1;
+        }
+        
+        #statusMessage {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="/static/logo.png" alt="로고" onerror="this.src='/static/default_logo.png'">
+            </div>
+            <h1 class="title">Masterpiece</h1>
+        </div>
+        
+        <div id="content-area">
+            <div class="date" id="date-display">
+                <!-- 날짜가 여기에 표시됩니다 -->
+                <script>
+                    document.getElementById('date-display').textContent = new Date().toLocaleString('ko-KR');
+                </script>
+            </div>
+            
+            <div class="preview">
+                <img id="photo-image" src="" alt="포토부스 사진" onerror="this.onerror=null; this.src='/static/image-error.png'">
+                <div class="qr-display" id="qr-display" style="display:none;">
+                    <img id="qr-image" src="" alt="QR 코드">
+                </div>
+            </div>
+            
+            <div class="madeby">Masterpiece</div>
+            
+            <a id="download-btn" href="" download="masterpiece_photo.png" class="download-btn">
+                사진 다운로드
+            </a>
+            
+            <!-- GIF 관련 섹션 - 조건부 표시 -->
+            <div id="gif-section" style="display:none;">
+                <div class="gif-preview">
+                    <h3>애니메이션 미리보기</h3>
+                    <img id="gif-image" src="" alt="애니메이션 GIF" onerror="this.src='/static/image-error.png'">
+                </div>
+                <a id="gif-download-btn" href="" download="masterpiece_animation.gif" class="download-btn">GIF 다운로드</a>
+            </div>
+            
+            <!-- 모두 다운로드 버튼 - 조건부 표시 -->
+            <a id="download-all-btn" class="download-btn download-all-btn" style="display:none;">모두 다운로드</a>
+            
+            <div class="save-tip">※ 다운로드가 안 될 경우 이미지를 길게 눌러 저장하세요</div>
+        </div>
+        
+        <div id="statusMessage"></div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL에서 이미지 경로 파라미터 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const imgPath = urlParams.get('img') || '/output/latest.png'; // 기본값 설정
+            const gifPath = urlParams.get('gif');
+            
+            // 이미지 경로 설정
+            const fullImgPath = imgPath.startsWith('/') ? imgPath : `/${imgPath}`;
+            
+            // 사진 로드 및 다운로드 버튼 설정
+            const photoImage = document.getElementById('photo-image');
+            const downloadBtn = document.getElementById('download-btn');
+            
+            photoImage.src = fullImgPath;
+            downloadBtn.href = fullImgPath;
+            
+            // GIF 관련 처리
+            const gifSection = document.getElementById('gif-section');
+            const gifImage = document.getElementById('gif-image');
+            const gifDownloadBtn = document.getElementById('gif-download-btn');
+            const downloadAllBtn = document.getElementById('download-all-btn');
+            
+            if (gifPath) {
+                const fullGifPath = gifPath.startsWith('/') ? gifPath : `/${gifPath}`;
+                gifImage.src = fullGifPath;
+                gifDownloadBtn.href = fullGifPath;
+                gifSection.style.display = 'block';
+                downloadAllBtn.style.display = 'block';
+                
+                // 모두 다운로드 버튼 설정
+                downloadAllBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    downloadAll(fullImgPath, fullGifPath);
+                });
+            }
+            
+            // 다운로드 버튼 클릭 처리
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.id !== 'download-all-btn') {
+                        setTimeout(() => {
+                            showStatus('다운로드가 시작되었습니다. 만약 다운로드가 되지 않는다면, 이미지를 길게 눌러 직접 저장해주세요.', 'success');
+                        }, 300);
+                    }
+                });
+            });
+        });
+        
+        // 모두 다운로드 함수
+        function downloadAll(imgPath, gifPath) {
+            // 사진 다운로드
+            let photoLink = document.createElement('a');
+            photoLink.href = imgPath;
+            photoLink.download = 'masterpiece_photo.png';
+            photoLink.style.display = 'none';
+            document.body.appendChild(photoLink);
+            photoLink.click();
+            
+            // 지연 후 GIF 다운로드
+            setTimeout(() => {
+                let gifLink = document.createElement('a');
+                gifLink.href = gifPath;
+                gifLink.download = 'masterpiece_animation.gif';
+                gifLink.style.display = 'none';
+                document.body.appendChild(gifLink);
+                gifLink.click();
+                
+                showStatus('모든 파일 다운로드가 시작되었습니다.', 'success');
+            }, 1000);
+        }
+        
+        // 상태 메시지 표시
+        function showStatus(message, type) {
+            const statusElem = document.getElementById('statusMessage');
+            statusElem.textContent = message;
+            statusElem.className = type === 'success' ? 'status-success' : 'status-error';
+            statusElem.style.display = 'block';
+            
+            setTimeout(() => {
+                statusElem.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 오류 메시지 표시
+        function showError(message) {
+            const contentArea = document.getElementById('content-area');
+            contentArea.innerHTML = `
+                <div class="error-message" style="text-align:center; padding:20px; color:#c62828;">
+                    <p>${message}</p>
+                    <p>다시 시도해주세요.</p>
+                </div>
+            `;
+            console.error(message);
+        }
+    </script>
+</body>
+</html>

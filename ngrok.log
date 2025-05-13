@@ -1,0 +1,130 @@
+t=2025-05-11T16:19:15+0900 lvl=info msg="no configuration paths supplied"
+t=2025-05-11T16:19:15+0900 lvl=info msg="using configuration at default config path" path=C:\\Users\\heseu\\AppData\\Local/ngrok/ngrok.yml
+t=2025-05-11T16:19:15+0900 lvl=info msg="open config file" path=C:\\Users\\heseu\\AppData\\Local\\ngrok\\ngrok.yml err=nil
+t=2025-05-11T16:19:15+0900 lvl=info msg="starting web service" obj=web addr=127.0.0.1:4040 allow_hosts=[]
+t=2025-05-11T16:19:16+0900 lvl=info msg="client session established" obj=tunnels.session
+t=2025-05-11T16:19:16+0900 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2025-05-11T16:19:16+0900 lvl=info msg="started tunnel" obj=tunnels name=command_line addr=http://localhost:3000 url=https://tight-scorpion-comic.ngrok-free.app
+t=2025-05-11T16:19:28+0900 lvl=info msg="join connections" obj=join id=a3b399ef349e l=[::1]:3000 r=175.210.160.160:37316
+t=2025-05-11T16:19:31+0900 lvl=info msg="join connections" obj=join id=7d5e462cac03 l=[::1]:3000 r=175.210.160.160:52885
+t=2025-05-11T16:19:31+0900 lvl=info msg="join connections" obj=join id=303733f957b9 l=[::1]:3000 r=175.210.160.160:52885
+t=2025-05-11T16:19:31+0900 lvl=info msg="join connections" obj=join id=e90f6055031d l=[::1]:3000 r=175.210.160.160:52885
+t=2025-05-11T16:19:31+0900 lvl=info msg="join connections" obj=join id=b83ebb50dc01 l=[::1]:3000 r=175.210.160.160:52885
+t=2025-05-11T16:19:31+0900 lvl=info msg="join connections" obj=join id=92d230a3d147 l=[::1]:3000 r=175.210.160.160:52885
+t=2025-05-11T16:25:46+0900 lvl=info msg="join connections" obj=join id=122a689c415d l=[::1]:3000 r=175.210.160.160:35390
+t=2025-05-11T16:25:46+0900 lvl=info msg="join connections" obj=join id=1fd4ba2fc145 l=[::1]:3000 r=175.210.160.160:35390
+t=2025-05-11T16:25:51+0900 lvl=info msg="join connections" obj=join id=62a675621cfc l=[::1]:3000 r=175.210.160.160:41570
+t=2025-05-11T16:31:17+0900 lvl=info msg="join connections" obj=join id=54ef9e2fbc21 l=[::1]:3000 r=175.210.160.160:47752
+t=2025-05-11T16:31:17+0900 lvl=info msg="join connections" obj=join id=8eef8d1f6fb3 l=[::1]:3000 r=175.210.160.160:47752
+t=2025-05-11T16:32:18+0900 lvl=info msg="join connections" obj=join id=7d9696980b7f l=[::1]:3000 r=175.210.160.160:35960
+t=2025-05-11T16:32:18+0900 lvl=info msg="join connections" obj=join id=3727d74195bd l=[::1]:3000 r=175.210.160.160:35960
+t=2025-05-11T16:35:03+0900 lvl=info msg="join connections" obj=join id=2bc8703b5e3c l=[::1]:3000 r=117.111.16.252:58351
+t=2025-05-11T16:35:04+0900 lvl=info msg="join connections" obj=join id=ebf61e1735da l=[::1]:3000 r=117.111.16.252:58351
+t=2025-05-11T16:38:19+0900 lvl=info msg="join connections" obj=join id=2de20edfcca3 l=[::1]:3000 r=[2001:e60:9292:66e9:4598:b579:fc93:51db]:40742
+t=2025-05-11T16:38:20+0900 lvl=info msg="join connections" obj=join id=badc33b9ef0f l=[::1]:3000 r=[2001:e60:9292:66e9:4598:b579:fc93:51db]:40742
+t=2025-05-11T16:38:20+0900 lvl=info msg="join connections" obj=join id=ec6f380d916a l=[::1]:3000 r=[2001:e60:9292:66e9:4598:b579:fc93:51db]:40742
+t=2025-05-11T16:38:33+0900 lvl=info msg="join connections" obj=join id=3e45a73ac26e l=[::1]:3000 r=[2001:e60:9292:66e9:4598:b579:fc93:51db]:40742
+t=2025-05-11T16:38:38+0900 lvl=info msg="join connections" obj=join id=63e23d96bdcb l=[::1]:3000 r=175.210.160.160:49564
+t=2025-05-11T16:38:38+0900 lvl=info msg="join connections" obj=join id=9338705d0a9e l=[::1]:3000 r=175.210.160.160:49564
+t=2025-05-11T16:38:38+0900 lvl=info msg="join connections" obj=join id=1a00f5427d0d l=[::1]:3000 r=175.210.160.160:49564
+t=2025-05-11T16:38:49+0900 lvl=info msg="join connections" obj=join id=c63eb4baedb0 l=[::1]:3000 r=175.210.160.160:49564
+t=2025-05-11T16:38:49+0900 lvl=info msg="join connections" obj=join id=10a2b534caca l=[::1]:3000 r=175.210.160.160:49564
+t=2025-05-11T16:39:52+0900 lvl=info msg="join connections" obj=join id=b610a20cda81 l=[::1]:3000 r=[2001:e60:9292:66e9:4598:b579:fc93:51db]:53364
+t=2025-05-11T16:44:10+0900 lvl=info msg="join connections" obj=join id=bcc28f0e0d05 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:44:10+0900 lvl=info msg="join connections" obj=join id=20954f60cb87 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:44:10+0900 lvl=info msg="join connections" obj=join id=22e0b127eb08 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:44:17+0900 lvl=info msg="join connections" obj=join id=8c517a863470 l=[::1]:3000 r=[2001:2d8:708c:2f76:d9bc:112a:78c3:5481]:57139
+t=2025-05-11T16:44:17+0900 lvl=info msg="join connections" obj=join id=f792e99c2206 l=[::1]:3000 r=[2001:2d8:708c:2f76:d9bc:112a:78c3:5481]:57139
+t=2025-05-11T16:44:24+0900 lvl=info msg="join connections" obj=join id=8df1c80e87b7 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:44:35+0900 lvl=info msg="join connections" obj=join id=51feca2bb4d3 l=[::1]:3000 r=[2001:2d8:ef3e:f691:dc0b:746b:bb7d:3334]:55962
+t=2025-05-11T16:44:36+0900 lvl=info msg="join connections" obj=join id=9ee256f6daf9 l=[::1]:3000 r=[2001:2d8:ef3e:f691:dc0b:746b:bb7d:3334]:55962
+t=2025-05-11T16:48:33+0900 lvl=info msg="join connections" obj=join id=fdf8cf4b1bb5 l=[::1]:3000 r=121.173.65.184:34394
+t=2025-05-11T16:48:43+0900 lvl=info msg="join connections" obj=join id=e3155a844a66 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:48:43+0900 lvl=info msg="join connections" obj=join id=2e189daccb3d l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:48:43+0900 lvl=info msg="join connections" obj=join id=b15151af6916 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:51:11+0900 lvl=info msg="join connections" obj=join id=c8c1a5c379c7 l=[::1]:3000 r=121.173.65.184:48220
+t=2025-05-11T16:51:43+0900 lvl=info msg="join connections" obj=join id=142bd3947cb4 l=[::1]:3000 r=[2001:2d8:7144:e149:ce1:fc1d:e5a9:6c47]:49266
+t=2025-05-11T16:51:44+0900 lvl=info msg="join connections" obj=join id=5e1ad59e9fb4 l=[::1]:3000 r=[2001:2d8:7144:e149:ce1:fc1d:e5a9:6c47]:49266
+t=2025-05-11T16:51:52+0900 lvl=info msg="join connections" obj=join id=1e2b396fbef7 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:51:52+0900 lvl=info msg="join connections" obj=join id=7b93d6ef1669 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:51:52+0900 lvl=info msg="join connections" obj=join id=194ebf258bd0 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:52:04+0900 lvl=info msg="join connections" obj=join id=a2a807fdf2b8 l=[::1]:3000 r=175.210.160.160:55738
+t=2025-05-11T16:53:47+0900 lvl=eror msg="heartbeat timeout, terminating session" obj=tunnels.session obj=csess id=aefc7f28ea1d clientid=086604cc8ed7704c232fe2432eb7548c
+t=2025-05-11T16:53:47+0900 lvl=eror msg="session closed, starting reconnect loop" obj=tunnels.session obj=csess id=8ce7f8e40aaf err="write tcp 192.168.0.100:52829->54.178.247.185:443: wsasend: An existing connection was forcibly closed by the remote host."
+t=2025-05-11T16:53:47+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T16:53:48+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T16:53:49+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T16:53:51+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T16:53:55+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T16:54:03+0900 lvl=info msg="client session established" obj=tunnels.session
+t=2025-05-11T16:54:03+0900 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2025-05-11T16:55:31+0900 lvl=info msg="join connections" obj=join id=82f01cad5a58 l=[::1]:3000 r=121.173.65.184:46218
+t=2025-05-11T16:56:32+0900 lvl=info msg="join connections" obj=join id=662043ff912d l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=afe9077125d0 l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=fa215c76aa4f l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=56fb710b2e57 l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=d2360dea32c4 l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=15589703d3cc l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=43c8e9eab32f l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=71e753432b57 l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=4275a519433b l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=bfd6927411ee l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=9bdad093f200 l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=7c3eeb4083eb l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:38+0900 lvl=info msg="join connections" obj=join id=1314dd45a655 l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:54+0900 lvl=info msg="join connections" obj=join id=17f673b3a1cf l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:54+0900 lvl=info msg="join connections" obj=join id=47aef26f687b l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:54+0900 lvl=info msg="join connections" obj=join id=69e4e9cdec45 l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:54+0900 lvl=info msg="join connections" obj=join id=20067c073c34 l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:54+0900 lvl=info msg="join connections" obj=join id=7e25c5c5a17e l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:56:54+0900 lvl=info msg="join connections" obj=join id=d1569526cd4a l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:57:24+0900 lvl=info msg="join connections" obj=join id=361925782995 l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:57:54+0900 lvl=info msg="join connections" obj=join id=a9e90099c6cf l=[::1]:3000 r=121.173.65.184:60710
+t=2025-05-11T16:58:31+0900 lvl=eror msg="session closed, starting reconnect loop" obj=tunnels.session obj=csess id=8ce7f8e40aaf err="session closed"
+t=2025-05-11T16:58:32+0900 lvl=info msg="client session established" obj=tunnels.session
+t=2025-05-11T16:58:32+0900 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2025-05-11T16:58:38+0900 lvl=eror msg="heartbeat timeout, terminating session" obj=tunnels.session obj=csess id=9f4d4ac0dc7e clientid=086604cc8ed7704c232fe2432eb7548c
+t=2025-05-11T16:58:40+0900 lvl=info msg="join connections" obj=join id=261dbd91bc88 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T16:58:40+0900 lvl=info msg="join connections" obj=join id=d483e588112b l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T16:58:40+0900 lvl=info msg="join connections" obj=join id=ca93ba94521e l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T16:58:40+0900 lvl=info msg="join connections" obj=join id=a998bda9ec67 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T16:58:40+0900 lvl=info msg="join connections" obj=join id=98c858d4f9f5 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T16:58:40+0900 lvl=info msg="join connections" obj=join id=91fd00615463 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T16:58:40+0900 lvl=info msg="join connections" obj=join id=c3c47b691f79 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T16:59:10+0900 lvl=info msg="join connections" obj=join id=6bf270bf7d81 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T16:59:40+0900 lvl=info msg="join connections" obj=join id=40074156cf57 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:00:10+0900 lvl=info msg="join connections" obj=join id=3189daaf369f l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:00:40+0900 lvl=info msg="join connections" obj=join id=def15c94dbee l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:01:10+0900 lvl=info msg="join connections" obj=join id=0a47af31f62d l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:01:40+0900 lvl=info msg="join connections" obj=join id=12856e246eac l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:02:10+0900 lvl=info msg="join connections" obj=join id=e9065ea9fb85 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:02:40+0900 lvl=info msg="join connections" obj=join id=7490a1514494 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:03:10+0900 lvl=info msg="join connections" obj=join id=df707f7bd780 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:03:40+0900 lvl=info msg="join connections" obj=join id=42aaf8e545a4 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:04:10+0900 lvl=info msg="join connections" obj=join id=68e617c2e890 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:04:40+0900 lvl=info msg="join connections" obj=join id=f5c21239b3f9 l=[::1]:3000 r=121.173.65.184:60775
+t=2025-05-11T17:05:16+0900 lvl=eror msg="heartbeat timeout, terminating session" obj=tunnels.session obj=csess id=b6d02906bcce clientid=086604cc8ed7704c232fe2432eb7548c
+t=2025-05-11T17:05:16+0900 lvl=eror msg="session closed, starting reconnect loop" obj=tunnels.session obj=csess id=8ce7f8e40aaf err="session closed"
+t=2025-05-11T17:05:16+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T17:05:17+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T17:05:18+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T17:05:20+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T17:05:24+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T17:05:32+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T17:05:48+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T17:07:11+0900 lvl=eror msg="failed to reconnect session" obj=tunnels.session err="failed to dial ngrok server with address \"connect.ngrok-agent.com:443\": dial tcp: lookup connect.ngrok-agent.com: no such host"
+t=2025-05-11T17:07:42+0900 lvl=info msg="client session established" obj=tunnels.session
+t=2025-05-11T17:07:42+0900 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2025-05-11T17:11:45+0900 lvl=info msg="join connections" obj=join id=e9146190964c l=[::1]:3000 r=175.210.160.160:37730
+t=2025-05-11T17:11:45+0900 lvl=info msg="join connections" obj=join id=113eaa3a4ae4 l=[::1]:3000 r=175.210.160.160:37730
+t=2025-05-11T17:11:45+0900 lvl=info msg="join connections" obj=join id=f152d72da290 l=[::1]:3000 r=175.210.160.160:37730
+t=2025-05-11T17:11:50+0900 lvl=info msg="join connections" obj=join id=277a8b8c835b l=[::1]:3000 r=175.210.160.160:37740
+t=2025-05-11T17:12:34+0900 lvl=info msg="join connections" obj=join id=cb759f112ebf l=[::1]:3000 r=175.210.160.160:37740
+t=2025-05-11T17:12:34+0900 lvl=info msg="join connections" obj=join id=68e4c790c9bc l=[::1]:3000 r=175.210.160.160:37740
+t=2025-05-11T17:13:09+0900 lvl=info msg="received stop request" obj=app stopReq="{err:<nil> restart:false}"
+t=2025-05-11T17:13:09+0900 lvl=info msg="session closing" obj=tunnels.session err=nil
+t=2025-05-11T17:13:09+0900 lvl=info msg="accept failed" obj=tunnels.session obj=csess id=8ce7f8e40aaf err="reconnecting session closed"
+t=2025-05-11T17:13:09+0900 lvl=info msg="failed to accept connection: Listener closed" obj=tunnels.session clientid=35cf304b35a95132f18f45e6e10720d5
+t=2025-05-11T17:13:09+0900 lvl=warn msg="Stopping forwarder" name=command_line acceptErr="failed to accept connection: Listener closed"
+t=2025-05-11T17:13:09+0900 lvl=warn msg="Error restarting forwarder" name=command_line err="failed to start tunnel: session closed"
+t=2025-05-11T17:13:09+0900 lvl=info msg="no more state changes" obj=tunnels.session
