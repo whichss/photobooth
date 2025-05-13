@@ -14,12 +14,24 @@ Python 기반의 카메라 제어 모듈과 Node.js 기반의 웹 서버로 구�
 
 ## 시스템 요구 사항 (System Requirements)
 
-### 하드웨어 (Hardware)
-- 웹캠 또는 USB 카메라
-- 프린터 (옵션)
-- 터치스크린 (권장)
+### 최소 하드웨어 요구사항 (Minimum Hardware Requirements)
+- **프로세서**: Intel Core i7 8세대 이상 또는 동급 AMD 프로세서
+- **메모리(RAM)**: 16GB 이상
+- **저장 공간**: SSD 512GB 이상
+- **그래픽 카드**: 독립 그래픽카드 필요 (최소 NVIDIA GTX 1650 이상)
+- **디스플레이**: 최소 1920x1080 해상도
+- **카메라**: 고화질 USB 웹캠 (1080p 이상 권장)
 
-### 소프트웨어 (Software)
+> **주의**: i5 프로세서와 8GB RAM 환경에서는 실시간 이미지 처리 시 성능 저하와 버벅거림이 발생할 수 있습니다.
+
+### 권장 하드웨어 (Recommended Hardware)
+- **프로세서**: Intel Core i7 10세대 이상 또는 AMD Ryzen 7 이상
+- **메모리(RAM)**: 32GB
+- **저장 공간**: SSD 1TB
+- **그래픽 카드**: NVIDIA RTX 3060 이상
+- **주변기기**: 터치스크린 모니터, 코닥 또는 포토 프린터
+
+### 소프트웨어 요구사항 (Software Requirements)
 - Windows 10 이상
 - Python 3.8 이상
 - Node.js 14 이상
@@ -185,6 +197,18 @@ set NGROK_DOMAIN=your_domain_here  (선택사항)
 ## 라이선스 (License)
 
 이 프로젝트는 MIT 라이선스 하에 공개되어 있습니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+
+### 사용된 라이브러리 라이선스 정보
+이 프로젝트는 다음과 같은 오픈소스 라이브러리를 사용합니다:
+
+- **OpenCV**: Apache 2.0 라이선스
+- **NumPy**: BSD 라이선스
+- **PIL/Pillow**: 오픈 소스 PIL 소프트웨어 라이선스
+- **Express.js**: MIT 라이선스
+- **Node.js**: MIT 라이선스
+- **QRCode**: MIT 라이선스
+
+각 라이브러리의 저작권 및 라이선스 정보는 해당 라이브러리의 공식 문서를 참조하시기 바랍니다.
 
 ## 감사의 말 (Acknowledgements)
 
