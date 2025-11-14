@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masterpiece Photobooth</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        .btn-start {
+            transition: all 0.2s ease;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-start:active {
+            transform: scale(0.98);
+        }
+
+        .feature-item {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .feature-item:nth-child(1) { animation-delay: 0.1s; }
+        .feature-item:nth-child(2) { animation-delay: 0.2s; }
+        .feature-item:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex items-center justify-center">
+    <div class="text-center px-4">
+        <!-- 로고/타이틀 -->
+        <div class="mb-16">
+            <h1 class="text-8xl font-bold text-black mb-6" style="letter-spacing: -0.03em;">
+                Masterpiece
+            </h1>
+            <p class="text-3xl font-bold text-black mb-3">
+                특별한 순간을 담는 포토부스
+            </p>
+            <p class="text-lg text-gray-600">
+                촬영부터 QR 공유까지 한번에
+            </p>
+        </div>
+
+        <!-- 메인 버튼 -->
+        <div class="bg-gray-50 rounded-3xl p-16 inline-block mb-12">
+            <button onclick="startSession(event)"
+                    class="btn-start bg-black hover:bg-gray-800 text-white font-bold text-3xl
+                           px-24 py-10 rounded-2xl shadow-lg">
+                촬영 시작
+            </button>
+        </div>
+
+        <!-- 기능 안내 -->
+        <div class="flex justify-center gap-8 text-sm font-bold text-gray-700 mb-8">
+            <div class="feature-item flex items-center gap-2">
+                <span>✓</span>
+                <span>HD 고화질</span>
+            </div>
+            <div class="feature-item flex items-center gap-2">
+                <span>✓</span>
+                <span>실시간 프리뷰</span>
+            </div>
+            <div class="feature-item flex items-center gap-2">
+                <span>✓</span>
+                <span>QR 즉시 공유</span>
+            </div>
+        </div>
+
+        <!-- 설정 버튼 -->
+        <div class="mt-6">
+            <button onclick="goSettings()"
+                    class="bg-gray-100 hover:bg-gray-200 text-black font-bold
+                           px-8 py-4 rounded-xl border-2 border-transparent
+                           hover:border-gray-300 transition">
+                설정
+            </button>
+        </div>
+
+        <!-- 푸터 -->
+        <div class="mt-12 text-xs text-gray-400">
+            © 2025 Masterpiece Photobooth. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        function startSession(event) {
+            console.log('촬영 시작 버튼 클릭됨');
+
+            // 버튼 클릭 효과
+            if (event && event.target) {
+                event.target.style.transform = 'scale(0.98)';
+            }
+
+            setTimeout(() => {
+                if (event && event.target) {
+                    event.target.style.transform = '';
+                }
+                // 프레임 레이아웃 선택 화면으로 이동
+                console.log('프레임 선택 화면으로 이동: /app/frame-select');
+                window.location.href = '/app/frame-select';
+            }, 150);
+        }
+
+        function goSettings() {
+            console.log('설정 화면으로 이동');
+            window.location.href = '/app/settings';
+        }
+
+        // 페이지 로드 시 로그
+        console.log('시작 화면 로드 완료');
+    </script>
+</body>
+</html>

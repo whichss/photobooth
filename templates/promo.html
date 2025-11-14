@@ -3,106 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>photobooth gallery</title>
+    <title>Masterpiece Gallery - 특별한 순간들</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        
+
         body {
             font-family: 'Pretendard', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(to bottom, #fef2f2, #fce7f3);
+            background: #FFFFFF;
+            line-height: 1.7;
         }
-        
+
+        .header-section {
+            background: #FAFAFA;
+            border-radius: 24px;
+            padding: 4rem 2.5rem;
+            margin-bottom: 3rem;
+            border: none;
+        }
+
+        .brand-logo {
+            display: inline-block;
+            color: #000000;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
         .photo-item {
             position: relative;
             overflow: hidden;
-            border-radius: 0.75rem;
-            background-color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
+            border-radius: 24px;
+            background-color: #FAFAFA;
+            transition: all 0.2s ease;
             aspect-ratio: 3/4;
+            border: none;
         }
-        
+
         .photo-item:hover {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-4px);
+            background: #F5F5F5;
         }
-        
+
         .photo-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s;
+            transition: transform 0.4s ease;
         }
-        
+
         .photo-item:hover img {
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
-        
+
         .photo-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 50%, transparent 100%);
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease;
             display: flex;
-            align-items: flex-end;
-            padding: 1rem;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
         }
-        
+
         .photo-item:hover .photo-overlay {
             opacity: 1;
         }
-        
+
         .photo-info {
             color: white;
+            transform: translateY(10px);
+            transition: transform 0.3s ease;
         }
-        
+
+        .photo-item:hover .photo-info {
+            transform: translateY(0);
+        }
+
         .photo-date {
-            font-weight: 500;
-        }
-        
-        .photo-link {
-            display: flex;
-            align-items: center;
-            margin-top: 0.5rem;
+            font-weight: 600;
             font-size: 0.875rem;
+            margin-bottom: 0.5rem;
         }
-        
-        .photo-link svg {
-            width: 1rem;
-            height: 1rem;
-            margin-left: 0.25rem;
+
+        .photo-id {
+            font-size: 0.75rem;
+            opacity: 0.9;
         }
-        
+
         .loading {
             text-align: center;
-            padding: 2rem;
-            color: #666;
+            padding: 3rem;
+            color: #6B6B6B;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            border: 4px solid #F5F5F5;
+            border-top-color: #000000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stats-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #000000;
+            color: #FFFFFF;
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-top: 1rem;
+        }
+
+        .home-link {
+            display: inline-block;
+            background: #000000;
+            color: #FFFFFF;
+            padding: 0.875rem 1.75rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .home-link:hover {
+            background: #1A1A1A;
+        }
+
+        .home-link:active {
+            transform: scale(0.98);
         }
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-gradient-to-b from-rose-50 to-pink-100">
-        <header class="container mx-auto py-8 px-4">
-            <div class="flex flex-col items-center text-center mb-12">
-                <h1 class="text-4xl md:text-5xl font-bold text-rose-600 mb-4">photobooth gallery</h1>
-                <p class="text-lg text-gray-700 max-w-2xl">
-                    특별한 순간을 담아내는 이곳에 오신 것을 환영합니다. 아름다운 추억을 만들어보세요.
+    <div class="min-h-screen">
+        <div class="container mx-auto px-4 py-8">
+            <header class="header-section text-center fade-in">
+                <h1 class="brand-logo text-6xl md:text-7xl mb-4">Masterpiece</h1>
+                <p class="text-2xl md:text-3xl font-bold mb-3" style="color: #000000; letter-spacing: -0.02em;">Gallery</p>
+                <p class="text-lg md:text-xl font-medium max-w-2xl mx-auto mb-6" style="color: #6B6B6B; line-height: 1.8;">
+                    특별한 순간들을 담은 갤러리입니다
                 </p>
-            </div>
-        </header>
+                <a href="/" class="home-link">
+                    <i class="fas fa-home mr-2"></i>홈으로
+                </a>
+                <div id="stats" class="mt-4"></div>
+            </header>
 
-        <main class="container mx-auto px-4 pb-16">
-            <div id="photo-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <div class="loading">사진을 불러오는 중...</div>
-            </div>
-        </main>
+            <main class="pb-16">
+                <div id="photo-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div class="col-span-full loading">
+                        <div class="loading-spinner mb-4"></div>
+                        <p class="text-lg font-medium">사진을 불러오는 중...</p>
+                    </div>
+                </div>
+            </main>
 
-        <footer class="container mx-auto py-8 px-4 text-center text-gray-600">
-            <p>© 2025 photobooth.All rights reserved.</p>
-            </div>
-        </footer>
+            <footer class="text-center py-8">
+                <p class="text-gray-600 mb-2">© 2025 Masterpiece Photobooth. All rights reserved.</p>
+                <p class="text-sm text-gray-500">
+                    <i class="fas fa-images mr-1"></i>
+                    Professional photobooth gallery
+                </p>
+            </footer>
+        </div>
     </div>
 
     <script>
@@ -153,33 +230,55 @@
         // 사진 목록 렌더링
         function renderPhotos(photos) {
             const grid = document.getElementById('photo-grid');
-            
+            const stats = document.getElementById('stats');
+
             if (!photos || photos.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">표시할 사진이 없습니다</div>';
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="text-gray-400 mb-3">
+                            <i class="fas fa-image text-5xl"></i>
+                        </div>
+                        <p class="text-gray-500 text-lg">아직 촬영된 사진이 없습니다</p>
+                    </div>
+                `;
+                stats.innerHTML = '';
                 return;
             }
-            
+
+            let validPhotos = photos.filter(photo => photo.final_img && !photo.final_img.includes('temp_'));
+
+            // 통계 업데이트
+            stats.innerHTML = `
+                <span class="stats-badge">
+                    <i class="fas fa-camera mr-2"></i>
+                    총 ${validPhotos.length}개의 추억
+                </span>
+            `;
+
             let html = '';
-            
-            photos.forEach(photo => {
+
+            validPhotos.forEach((photo, index) => {
                 // 최종 이미지가 없거나 임시 이미지인 경우 건너뜀
                 if (!photo.final_img || photo.final_img.includes('temp_')) return;
-                
+
                 const date = new Date(photo.created_at * 1000);
-                const formattedDate = `${date.getFullYear()}년 ${String(date.getMonth() + 1).padStart(2, '0')}월 ${String(date.getDate()).padStart(2, '0')}일 ${String(date.getHours()).padStart(2, '0')}시 ${String(date.getMinutes()).padStart(2, '0')}분`;
-                    
-                    html += `
-                        <div class="photo-item">
-                        <img src="${photo.final_img}" alt="포토부스 사진" onerror="this.onerror=null; this.src='/static/error_image.png'">
-                            <div class="photo-overlay">
-                                <div class="photo-info">
-                                <div class="photo-date">${formattedDate}</div>
+                const formattedDate = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+                html += `
+                    <div class="photo-item scale-in" style="animation-delay: ${Math.min(index * 0.05, 1)}s;">
+                        <img src="${photo.final_img}" alt="포토부스 사진" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 viewBox=%220 0 100 100%22><rect width=%22100%%22 height=%22100%%22 fill=%22%23f3f4f6%22></rect><text x=%2250%%22 y=%2250%%22 font-family=%22sans-serif%22 font-size=%2216%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23d1d5db%22>이미지 없음</text></svg>'">
+                        <div class="photo-overlay">
+                            <div class="photo-info">
+                                <div class="photo-date">
+                                    <i class="fas fa-calendar-alt mr-2"></i>${formattedDate}
                                 </div>
+                                <div class="photo-id">ID: ${photo.hash}</div>
                             </div>
                         </div>
-                    `;
-                });
-            
+                    </div>
+                `;
+            });
+
             grid.innerHTML = html;
         }
 

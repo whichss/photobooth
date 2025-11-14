@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>완성! - Masterpiece</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', sans-serif; }
+
+        .result-image {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+    <!-- 헤더 -->
+    <div class="bg-black py-5">
+        <h1 class="text-white text-3xl font-bold text-center">
+            🎉 촬영 완료!
+        </h1>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="max-w-6xl mx-auto px-8 py-8">
+        <div class="grid grid-cols-2 gap-12 items-center" style="max-height: 80vh;">
+            <!-- 왼쪽: 완성된 사진 -->
+            <div class="bg-gray-50 rounded-3xl p-6 flex items-center justify-center" style="max-height: 75vh;">
+                <div class="result-image" style="max-height: 100%; max-width: 100%;">
+                    <img id="finalImage" src="" alt="완성된 사진"
+                         class="rounded-2xl shadow-2xl" style="max-height: 65vh; width: auto; object-fit: contain;">
+                </div>
+            </div>
+
+            <!-- 오른쪽: QR 코드 & 다운로드 -->
+            <div class="flex flex-col justify-center">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold mb-3">QR 코드로 다운로드</h2>
+                    <p class="text-gray-600 mb-6 text-sm">
+                        QR 코드를 스캔하여<br>
+                        사진을 다운로드하세요
+                    </p>
+
+                    <!-- QR 코드 -->
+                    <div class="inline-block bg-white p-6 rounded-2xl shadow-lg">
+                        <img id="qrCode" src="" alt="QR 코드"
+                             class="w-48 h-48">
+                    </div>
+                </div>
+
+                <!-- 버튼들 -->
+                <div class="space-y-3">
+                    <button onclick="downloadPhoto()"
+                            class="w-full bg-black text-white font-bold text-lg
+                                   py-4 rounded-2xl hover:bg-gray-800 transition">
+                        직접 다운로드
+                    </button>
+
+                    <button onclick="restart()"
+                            class="w-full bg-white text-black font-bold text-lg
+                                   py-4 rounded-2xl border-2 border-black
+                                   hover:bg-gray-50 transition">
+                        처음으로
+                    </button>
+                </div>
+
+                <!-- 카운트다운 -->
+                <div class="text-center mt-6 text-gray-500">
+                    <p id="countdown" class="text-sm">
+                        30초 후 자동으로 처음 화면으로 돌아갑니다
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let result = null;
+        let countdownSeconds = 30;
+        let countdownInterval = null;
+
+        // 결과 데이터 로드
+        function loadResult() {
+            const resultJson = sessionStorage.getItem('finalResult');
+            if (!resultJson) {
+                alert('결과 데이터가 없습니다.');
+                window.location.href = '/app/start';
+                return;
+            }
+
+            result = JSON.parse(resultJson);
+
+            // 이미지 표시
+            if (result.finalImage) {
+                document.getElementById('finalImage').src = result.finalImage;
+            }
+
+            // QR 코드 표시
+            if (result.qrCode) {
+                document.getElementById('qrCode').src = result.qrCode;
+            }
+
+            // 카운트다운 시작
+            startCountdown();
+        }
+
+        // 카운트다운
+        function startCountdown() {
+            countdownInterval = setInterval(() => {
+                countdownSeconds--;
+                document.getElementById('countdown').textContent =
+                    `${countdownSeconds}초 후 자동으로 처음 화면으로 돌아갑니다`;
+
+                if (countdownSeconds <= 0) {
+                    restart();
+                }
+            }, 1000);
+        }
+
+        // 다운로드
+        function downloadPhoto() {
+            if (result && result.finalImage) {
+                const a = document.createElement('a');
+                a.href = result.finalImage;
+                a.download = 'masterpiece_photo.jpg';
+                a.click();
+            }
+        }
+
+        // 처음으로
+        function restart() {
+            clearInterval(countdownInterval);
+            sessionStorage.clear();
+            window.location.href = '/app/start';
+        }
+
+        // 초기화
+        loadResult();
+    </script>
+</body>
+</html>

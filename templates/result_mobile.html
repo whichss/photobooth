@@ -4,230 +4,328 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Masterpiece - 사진 다운로드</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        
-        :root {
-            --primary: #2D3250;
-            --secondary: #424769;
-            --background: #fafafa;
-            --surface: #ffffff;
-            --text: #111111;
-            --text-secondary: #666666;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
+
+        :root {
+            --primary: #000000;
+            --primary-dark: #1A1A1A;
+            --background: #FAFAFA;
+            --surface: #FFFFFF;
+            --text: #2D3436;
+            --text-secondary: #6B6B6B;
+            --text-tertiary: #9E9E9E;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
         body {
             margin: 0;
             padding: 0;
-            background: var(--background);
+            background: #FFFFFF;
             font-family: 'Pretendard', sans-serif;
             color: var(--text);
+            min-height: 100vh;
         }
-        
+
         .container {
-            max-width: 430px;
+            max-width: 480px;
             margin: 0 auto;
-            padding: 20px 16px;
+            padding: 24px 20px;
         }
-        
+
         .header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
-        
-        .title {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin: 12px 0;
-            text-align: center;
+
+        .brand-logo {
+            color: #000000;
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
         }
-        
-        .logo img {
-            width: 80px;
-            margin-top: 24px;
-        }
-        
-        .preview {
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            padding: 12px;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        .preview img {
-            width: 100%;
-            border-radius: 12px;
-            display: block;
-        }
-        
-        .qr-display {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            width: 70px;
-            height: 70px;
-            background: white;
-            padding: 5px;
-            border-radius: 8px;
-        }
-        
-        .madeby {
-            text-align: center;
-            margin: 18px 0 8px 0;
-            color: var(--text);
-            font-size: 1.1rem;
-        }
-        
-        .download-btn {
-            display: block;
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 12px;
-            padding: 16px 0;
-            margin: 12px 0 8px 0;
-            font-weight: 600;
-            text-align: center;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-        
-        .download-btn:hover, .download-btn:active {
-            background: var(--secondary);
-        }
-        
-        .download-all-btn {
-            background: #006064;
-        }
-        
-        .download-all-btn:hover, .download-all-btn:active {
-            background: #00838f;
-        }
-        
-        .gif-preview {
-            text-align: center;
-            margin: 20px 0;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-        }
-        
-        .gif-preview h3 {
-            margin-top: 0;
-            color: var(--primary);
-        }
-        
-        .gif-preview img {
-            max-width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .save-tip {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            margin-bottom: 10px;
-        }
-        
-        .date {
-            text-align: center;
+
+        .subtitle {
             color: var(--text-secondary);
             font-size: 1rem;
-            margin-bottom: 16px;
+            font-weight: 500;
         }
-        
-        .no-gif-msg {
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 8px;
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .logo-icon i {
+            color: white;
+            font-size: 1.75rem;
+        }
+
+        .preview-card {
+            background: var(--surface);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            padding: 16px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-image {
+            width: 100%;
+            border-radius: 16px;
+            display: block;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .date-badge {
             text-align: center;
-            margin: 15px 0;
-            color: #777;
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--primary-dark);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: inline-block;
+            width: auto;
         }
-        
-        .capture-gif-btn {
-            background: #673ab7;
-            margin-top: 10px;
+
+        .date-container {
+            text-align: center;
+            margin-bottom: 20px;
         }
-        
-        .capture-gif-btn:hover, .capture-gif-btn:active {
-            background: #5e35b1;
+
+        .branding {
+            text-align: center;
+            margin: 20px 0 16px 0;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 600;
         }
-        
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-size: 1.125rem;
+            border: none;
+            border-radius: 14px;
+            padding: 18px 24px;
+            margin: 12px 0;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        .download-btn:active {
+            transform: scale(0.98);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .download-btn i {
+            margin-right: 10px;
+            font-size: 1.25rem;
+        }
+
+        .download-all-btn {
+            background: linear-gradient(135deg, #FFC048 0%, #FFB347 100%);
+        }
+
+        .gif-section {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 24px 16px;
+            margin: 20px 0;
+            box-shadow: var(--shadow-md);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .gif-section h3 {
+            text-align: center;
+            color: var(--primary-dark);
+            margin: 0 0 16px 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .gif-preview img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .info-tip {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+            margin: 16px 0;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            line-height: 1.5;
+        }
+
+        .info-tip i {
+            color: var(--primary);
+            margin-right: 6px;
+        }
+
         #statusMessage {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 12px 0;
+            border-radius: 12px;
             text-align: center;
             display: none;
+            font-weight: 600;
+            font-size: 0.9375rem;
         }
-        
+
         .status-success {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+            color: #2E7D32;
+            border: 2px solid #81C784;
         }
-        
+
         .status-error {
-            background: #ffebee;
-            color: #c62828;
+            background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+            color: #C62828;
+            border: 2px solid #E57373;
         }
 
         .loading {
             text-align: center;
-            padding: 20px;
-            color: #666;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 107, 157, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="logo">
-                <img src="/static/logo.png" alt="로고" onerror="this.src='/static/default_logo.png'">
+        <div class="header fade-in">
+            <div class="logo-icon">
+                <i class="fas fa-camera"></i>
             </div>
-            <h1 class="title">Masterpiece</h1>
+            <h1 class="brand-logo">Masterpiece</h1>
+            <p class="subtitle">
+                <i class="fas fa-download mr-1"></i>사진 다운로드
+            </p>
         </div>
         
-        <div id="content-area">
-            <div class="date" id="date-display">
-                <!-- 날짜가 여기에 표시됩니다 -->
-                <script>
-                    document.getElementById('date-display').textContent = new Date().toLocaleString('ko-KR');
-                </script>
-            </div>
-            
-            <div class="preview">
-                <img id="photo-image" src="" alt="포토부스 사진" onerror="this.onerror=null; this.src='/static/image-error.png'">
-                <div class="qr-display" id="qr-display" style="display:none;">
-                    <img id="qr-image" src="" alt="QR 코드">
+        <div id="content-area" class="fade-in">
+            <div class="date-container">
+                <div class="date-badge" id="date-display">
+                    <i class="fas fa-calendar-alt"></i>
+                    <script>
+                        const now = new Date();
+                        const dateStr = now.toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        const timeStr = now.toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        document.getElementById('date-display').innerHTML = `<i class="fas fa-calendar-alt"></i> ${dateStr} ${timeStr}`;
+                    </script>
                 </div>
             </div>
-            
-            <div class="madeby">Masterpiece</div>
-            
+
+            <div class="preview-card">
+                <img id="photo-image" class="preview-image" src="" alt="포토부스 사진" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 viewBox=%220 0 100 100%22><rect width=%22100%%22 height=%22100%%22 fill=%22%23f3f4f6%22></rect><text x=%2250%%22 y=%2250%%22 font-family=%22sans-serif%22 font-size=%2216%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23d1d5db%22>이미지 없음</text></svg>'">
+            </div>
+
+            <div class="branding">
+                <i class="fas fa-camera mr-1"></i> Masterpiece Photobooth
+            </div>
+
             <a id="download-btn" href="" download="masterpiece_photo.png" class="download-btn">
+                <i class="fas fa-download"></i>
                 사진 다운로드
             </a>
-            
+
             <!-- GIF 관련 섹션 - 조건부 표시 -->
-            <div id="gif-section" style="display:none;">
+            <div id="gif-section" class="gif-section" style="display:none;">
+                <h3>
+                    <i class="fas fa-film mr-2"></i>애니메이션 GIF
+                </h3>
                 <div class="gif-preview">
-                    <h3>애니메이션 미리보기</h3>
-                    <img id="gif-image" src="" alt="애니메이션 GIF" onerror="this.src='/static/image-error.png'">
+                    <img id="gif-image" src="" alt="애니메이션 GIF" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 viewBox=%220 0 100 100%22><rect width=%22100%%22 height=%22100%%22 fill=%22%23f3f4f6%22></rect><text x=%2250%%22 y=%2250%%22 font-family=%22sans-serif%22 font-size=%2216%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23d1d5db%22>GIF 없음</text></svg>'">
                 </div>
-                <a id="gif-download-btn" href="" download="masterpiece_animation.gif" class="download-btn">GIF 다운로드</a>
+                <a id="gif-download-btn" href="" download="masterpiece_animation.gif" class="download-btn">
+                    <i class="fas fa-download"></i>
+                    GIF 다운로드
+                </a>
             </div>
-            
+
             <!-- 모두 다운로드 버튼 - 조건부 표시 -->
-            <a id="download-all-btn" class="download-btn download-all-btn" style="display:none;">모두 다운로드</a>
-            
-            <div class="save-tip">※ 다운로드가 안 될 경우 이미지를 길게 눌러 저장하세요</div>
+            <a id="download-all-btn" class="download-btn download-all-btn" style="display:none;">
+                <i class="fas fa-download"></i>
+                모두 다운로드
+            </a>
+
+            <div class="info-tip">
+                <i class="fas fa-info-circle"></i>
+                다운로드가 안 될 경우 이미지를 길게 눌러 저장하세요
+            </div>
         </div>
-        
+
         <div id="statusMessage"></div>
     </div>
     

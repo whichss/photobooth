@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사진 선택 - Masterpiece</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: white;
+            overflow: hidden;
+        }
+
+        .photo-thumbnail {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 3px solid #E5E7EB;
+        }
+
+        .photo-thumbnail.ratio-3-4 {
+            aspect-ratio: 3/4;
+        }
+
+        .photo-thumbnail.ratio-2-3 {
+            aspect-ratio: 5/3;
+        }
+
+        .photo-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-thumbnail.ratio-2-3 img {
+            object-fit: contain;
+            background: #f9fafb;
+        }
+
+        .photo-thumbnail.selected {
+            border: 4px solid #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .photo-thumbnail.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #3B82F6;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .preview-container {
+            background: #F3F4F6;
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            max-height: 75vh;
+            position: relative;
+        }
+
+        .preview-frame-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .preview-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 1.6%;
+            width: 100%;
+            max-width: 350px;
+            max-height: 70vh;
+            aspect-ratio: 1230/1820;
+            padding: 4.88%;
+            box-sizing: border-box;
+        }
+
+        .preview-1x4 {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: repeat(4, 1fr);
+            gap: 3.17%;
+            width: 100%;
+            max-width: 180px;
+            max-height: 75vh;
+            aspect-ratio: 630/1820;
+            padding-top: 2.2%;
+            padding-bottom: 12.1%;
+            padding-left: 6.35%;
+            padding-right: 6.35%;
+            box-sizing: border-box;
+        }
+
+        .preview-slot {
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #D1D5DB;
+            font-size: 2rem;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .preview-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .preview-1x4 .preview-slot {
+            aspect-ratio: 550/309;
+        }
+
+        .preview-2x2 .preview-slot {
+            aspect-ratio: 545/840;
+        }
+
+        .timer-bar {
+            background: white;
+            padding: 15px 40px;
+            position: relative;
+        }
+
+        .timer {
+            position: absolute;
+            top: 50%;
+            right: 40px;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3B82F6;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- 헤더 -->
+    <div class="bg-black py-5 px-8 flex items-center justify-between">
+        <div class="w-32"></div>
+        <h1 class="text-white text-3xl font-bold">사진 선택</h1>
+        <button onclick="goNext()" id="headerNextBtn"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg
+                       px-8 py-3 rounded-xl transition disabled:bg-gray-600 disabled:cursor-not-allowed"
+                disabled>
+            확인
+        </button>
+    </div>
+
+    <!-- 타이머 바 -->
+    <div class="timer-bar">
+        <div class="timer" id="timer">60</div>
+    </div>
+
+    <!-- 상단 안내 -->
+    <div class="text-center pt-4 pb-3">
+        <h2 id="instruction" class="text-gray-800 text-xl font-bold">4장의 사진을 선택해 주세요</h2>
+        <p class="text-gray-600 text-base mt-1">선택된 사진: <span id="selectedCount" class="text-blue-500 font-bold">0</span>/<span id="maxCount">4</span></p>
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="flex-1 flex items-center px-8 pb-6 gap-8" style="max-height: calc(100vh - 220px);">
+        <!-- 좌측: 미리보기 -->
+        <div class="w-5/12 h-full flex items-center justify-center">
+            <div class="preview-container">
+                <div id="previewFrameBg" class="preview-frame-bg"></div>
+                <div id="previewGrid" class="preview-2x2" style="position: relative; z-index: 10;">
+                    <div class="preview-slot">1</div>
+                    <div class="preview-slot">2</div>
+                    <div class="preview-slot">3</div>
+                    <div class="preview-slot">4</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 우측: 사진 선택 -->
+        <div class="w-7/12 h-full flex items-center justify-center overflow-y-auto">
+            <div id="photoGrid" class="grid gap-4 w-full max-w-xl py-4">
+                <!-- JavaScript로 채워짐 -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        let MAX_SELECTION = 4; // 레이아웃에 따라 변경됨
+        let selectedPhotos = [];
+        let allPhotos = [];
+        let frameLayout = '2x2';
+        let timeLeft = 60;
+        let timerInterval = null;
+
+        // 타이머 시작
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // 자동으로 필요한 장수만큼 선택
+                    autoSelectPhotos();
+                }
+            }, 1000);
+        }
+
+        // 자동 선택 (시간 초과 시)
+        function autoSelectPhotos() {
+            selectedPhotos = [];
+            for (let i = 0; i < MAX_SELECTION && i < allPhotos.length; i++) {
+                selectedPhotos.push(i);
+            }
+            renderPhotos();
+            updatePreview();
+            setTimeout(() => goNext(), 1000);
+        }
+
+        // 촬영한 사진 불러오기
+        function loadPhotos() {
+            const photosJson = sessionStorage.getItem('capturedPhotos');
+            if (!photosJson) {
+                alert('촬영된 사진이 없습니다.');
+                window.location.href = '/app/start';
+                return;
+            }
+
+            allPhotos = JSON.parse(photosJson);
+            frameLayout = sessionStorage.getItem('frameLayout') || '2x2';
+
+            // 항상 4장 선택 (레이아웃 관계없이)
+            MAX_SELECTION = 4;
+
+            document.getElementById('maxCount').textContent = MAX_SELECTION;
+            document.getElementById('instruction').textContent = `${MAX_SELECTION}장의 사진을 선택해 주세요`;
+
+            // 레이아웃에 따라 미리보기 변경
+            updatePreviewLayout();
+            renderPhotos();
+            startTimer();
+        }
+
+        // 레이아웃에 따라 미리보기 변경
+        function updatePreviewLayout() {
+            const container = document.getElementById('previewGrid');
+            const frameBg = document.getElementById('previewFrameBg');
+
+            // 레이아웃에 따라 클래스 설정
+            if (frameLayout === '2x2') {
+                container.className = 'preview-2x2';
+                container.style.position = 'relative';
+                container.style.zIndex = '10';
+                // 흰색 프레임 배경 설정
+                frameBg.style.backgroundImage = 'url(/frames/2x2/white_frame.png)';
+            } else if (frameLayout === '1x4') {
+                container.className = 'preview-1x4';
+                container.style.position = 'relative';
+                container.style.zIndex = '10';
+                // 흰색 프레임 배경 설정
+                frameBg.style.backgroundImage = 'url(/frames/1x4/white_frame.png)';
+            }
+
+            let html = '';
+            // 항상 4칸 표시
+            for (let i = 0; i < 4; i++) {
+                html += `<div class="preview-slot" id="preview-${i}">${i + 1}</div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        // 사진 렌더링
+        function renderPhotos() {
+            const grid = document.getElementById('photoGrid');
+            grid.innerHTML = '';
+
+            // 레이아웃에 따라 그리드 클래스 설정
+            if (frameLayout === '2x2') {
+                grid.className = 'grid grid-cols-3 grid-rows-2 gap-4 w-full max-w-xl';
+            } else if (frameLayout === '1x4') {
+                // 1x4 세로 레이아웃: 컴팩트한 그리드
+                grid.className = 'grid grid-cols-3 grid-rows-2 gap-3 w-full max-w-lg';
+            }
+
+            allPhotos.forEach((photoPath, index) => {
+                const div = document.createElement('div');
+                // 레이아웃에 따라 썸네일 비율 설정
+                if (frameLayout === '2x2') {
+                    div.className = 'photo-thumbnail ratio-3-4';
+                } else if (frameLayout === '1x4') {
+                    div.className = 'photo-thumbnail ratio-2-3';
+                }
+
+                if (selectedPhotos.includes(index)) {
+                    div.classList.add('selected');
+                }
+                div.onclick = () => toggleSelection(index);
+
+                div.innerHTML = `<img src="${photoPath}" alt="Photo ${index + 1}">`;
+
+                grid.appendChild(div);
+            });
+
+            updateSelectionInfo();
+        }
+
+        // 선택/선택 해제
+        function toggleSelection(index) {
+            if (selectedPhotos.includes(index)) {
+                // 선택 해제
+                selectedPhotos = selectedPhotos.filter(i => i !== index);
+            } else {
+                // 선택
+                if (selectedPhotos.length >= MAX_SELECTION) {
+                    // 가장 먼저 선택된 것 제거하고 새로 추가
+                    selectedPhotos.shift();
+                }
+                selectedPhotos.push(index);
+            }
+
+            renderPhotos();
+            updatePreview();
+        }
+
+        // 미리보기 업데이트
+        function updatePreview() {
+            // 항상 4칸 업데이트
+            for (let i = 0; i < 4; i++) {
+                const slot = document.getElementById(`preview-${i}`);
+                if (slot && selectedPhotos[i] !== undefined) {
+                    const photoPath = allPhotos[selectedPhotos[i]];
+                    slot.innerHTML = `<img src="${photoPath}" alt="Selected ${i + 1}">`;
+                } else if (slot) {
+                    slot.innerHTML = i + 1;
+                }
+            }
+        }
+
+        // 선택 정보 업데이트
+        function updateSelectionInfo() {
+            document.getElementById('selectedCount').textContent = selectedPhotos.length;
+
+            const headerNextBtn = document.getElementById('headerNextBtn');
+            const isComplete = selectedPhotos.length === MAX_SELECTION;
+
+            headerNextBtn.disabled = !isComplete;
+        }
+
+        // 다음 단계로
+        function goNext() {
+            if (selectedPhotos.length !== MAX_SELECTION) return;
+
+            // 타이머 중지
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            // 선택된 사진들만 저장
+            const selectedPhotosPaths = selectedPhotos.map(i => allPhotos[i]);
+            sessionStorage.setItem('selectedPhotos', JSON.stringify(selectedPhotosPaths));
+            sessionStorage.setItem('selectedIndices', JSON.stringify(selectedPhotos));
+
+            // 프레임 디자인 선택 화면으로 이동
+            window.location.href = '/app/frame-filter';
+        }
+
+        // 초기화
+        loadPhotos();
+    </script>
+</body>
+</html>

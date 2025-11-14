@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masterpiece - 촬영</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            overflow: hidden;
+        }
+
+        #countdown {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #countdown.pulse {
+            animation: pulse 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .btn-capture {
+            transition: all 0.2s ease;
+        }
+
+        .btn-capture:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(91, 158, 255, 0.3);
+        }
+
+        .btn-capture:active {
+            transform: translateY(0);
+        }
+
+        video {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+
+        .flash-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s;
+        }
+
+        .flash-effect.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Flash 효과 -->
+    <div id="flashEffect" class="flash-effect"></div>
+
+    <!-- 메인 레이아웃 -->
+    <div class="flex h-screen">
+        <!-- 왼쪽: 카운트다운 -->
+        <div class="w-1/4 bg-gray-50 flex items-center justify-center">
+            <div id="countdown" class="text-9xl font-bold text-blue-500">
+                30
+            </div>
+        </div>
+
+        <!-- 중앙: 카메라 프리뷰 -->
+        <div class="w-2/4 bg-gray-300 relative">
+            <video id="cameraPreview" autoplay playsinline class="w-full h-full"></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+        </div>
+
+        <!-- 오른쪽: 정보 -->
+        <div class="w-1/4 bg-gray-50 flex flex-col relative">
+            <!-- 취소 버튼 (우측 상단) -->
+            <button onclick="goHome()"
+                    class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-2xl transition-colors">
+                ✕
+            </button>
+
+            <!-- 중앙 콘텐츠 -->
+            <div class="flex-1 flex flex-col items-center justify-center px-8">
+                <!-- 남은 촬영 횟수 -->
+                <p class="text-gray-500 text-base mb-3">남은 촬영 횟수</p>
+                <div id="photoCount" class="text-8xl font-bold text-gray-800 mb-10">
+                    6
+                </div>
+
+                <!-- 안내 문구 -->
+                <div class="bg-gray-100 rounded-xl px-6 py-5 mb-8 text-center">
+                    <p class="text-sm text-gray-600 mb-2">카메라를 보고 포즈를</p>
+                    <p class="text-sm text-gray-600 mb-2">예쁘게 취해주세요</p>
+                    <p class="text-sm text-gray-600">시간 만료 시 자동 촬영됩니다</p>
+                </div>
+
+                <!-- 촬영 버튼 -->
+                <button id="captureBtn"
+                        onclick="startCapture()"
+                        class="btn-capture bg-blue-500 hover:bg-blue-600 text-white font-bold
+                               px-12 py-5 rounded-2xl text-lg shadow-lg">
+                    촬영하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let countdownValue = 30;
+        let countdownInterval = null;
+        let remainingPhotos = 6;
+        let totalPhotos = 6;
+        let videoStream = null;
+
+        // 카메라 초기화
+        async function initCamera() {
+            try {
+                const constraints = {
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        facingMode: 'user'
+                    }
+                };
+
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+                document.getElementById('cameraPreview').srcObject = videoStream;
+
+                console.log('카메라 초기화 완료');
+            } catch (error) {
+                console.error('카메라 접근 오류:', error);
+                alert('카메라에 접근할 수 없습니다.');
+            }
+        }
+
+        // 자동 카운트다운 시작
+        function startAutoCountdown() {
+            if (countdownInterval) return;
+
+            countdownInterval = setInterval(() => {
+                countdownValue--;
+                updateCountdownUI();
+
+                if (countdownValue <= 0) {
+                    stopCountdown();
+                    capturePhoto();
+                }
+            }, 1000);
+        }
+
+        // 수동 촬영 (버튼 클릭)
+        function startCapture() {
+            if (countdownInterval) return; // 이미 카운트다운 중이면 무시
+
+            // 5초 카운트다운으로 변경
+            countdownValue = 5;
+            updateCountdownUI();
+
+            document.getElementById('captureBtn').disabled = true;
+            document.getElementById('captureBtn').classList.add('opacity-50');
+
+            countdownInterval = setInterval(() => {
+                countdownValue--;
+                updateCountdownUI();
+
+                if (countdownValue <= 0) {
+                    stopCountdown();
+                    capturePhoto();
+                }
+            }, 1000);
+        }
+
+        // 카운트다운 UI 업데이트
+        function updateCountdownUI() {
+            const countdownEl = document.getElementById('countdown');
+            countdownEl.textContent = countdownValue;
+            countdownEl.classList.add('pulse');
+            setTimeout(() => countdownEl.classList.remove('pulse'), 300);
+        }
+
+        // 카운트다운 정지
+        function stopCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+        }
+
+        // 사진 촬영
+        async function capturePhoto() {
+            try {
+                // Flash 효과
+                const flash = document.getElementById('flashEffect');
+                flash.classList.add('active');
+                setTimeout(() => flash.classList.remove('active'), 200);
+
+                // Canvas에 비디오 프레임 캡처
+                const video = document.getElementById('cameraPreview');
+                const canvas = document.getElementById('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+
+                // Base64로 변환
+                const imageData = canvas.toDataURL('image/jpeg', 0.95);
+
+                // 서버로 전송
+                const response = await fetch('/api/capture', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image: imageData,
+                        sessionId: Date.now()
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 남은 촬영 횟수 감소
+                    remainingPhotos--;
+                    document.getElementById('photoCount').textContent = remainingPhotos;
+
+                    if (remainingPhotos <= 0) {
+                        // 촬영 완료 - 선택 화면으로
+                        window.location.href = '/select';
+                    } else {
+                        // 다음 촬영 준비
+                        resetForNextPhoto();
+                    }
+                } else {
+                    alert('촬영에 실패했습니다.');
+                    resetForNextPhoto();
+                }
+            } catch (error) {
+                console.error('촬영 오류:', error);
+                alert('촬영 중 오류가 발생했습니다.');
+                resetForNextPhoto();
+            }
+        }
+
+        // 다음 촬영 준비
+        function resetForNextPhoto() {
+            countdownValue = 30;
+            updateCountdownUI();
+
+            document.getElementById('captureBtn').disabled = false;
+            document.getElementById('captureBtn').classList.remove('opacity-50');
+
+            // 자동 카운트다운 재시작
+            setTimeout(() => {
+                startAutoCountdown();
+            }, 1000);
+        }
+
+        // 홈으로 돌아가기
+        function goHome() {
+            if (confirm('촬영을 취소하고 홈으로 돌아가시겠습니까?')) {
+                // 카메라 스트림 종료
+                if (videoStream) {
+                    videoStream.getTracks().forEach(track => track.stop());
+                }
+                window.location.href = '/';
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', async () => {
+            await initCamera();
+            startAutoCountdown();
+        });
+
+        // 페이지 언로드 시 카메라 정리
+        window.addEventListener('beforeunload', () => {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        // ESC 키로 종료
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                goHome();
+            }
+        });
+    </script>
+</body>
+</html>

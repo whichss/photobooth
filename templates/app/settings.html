@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설정 - Masterpiece</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        }
+
+        .setting-card {
+            transition: all 0.3s ease;
+        }
+
+        .setting-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 헤더 -->
+    <div class="bg-black py-6 px-8 flex items-center justify-between">
+        <button onclick="goBack()" class="text-white hover:text-gray-300 text-2xl">
+            ← 돌아가기
+        </button>
+        <h1 class="text-white text-3xl font-bold">설정</h1>
+        <div class="w-12"></div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-8 py-12">
+        <!-- 카메라 설정 -->
+        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+            <h2 class="text-2xl font-bold mb-6">카메라 설정</h2>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">카메라 선택</label>
+                <select id="cameraSelect" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                                                      focus:border-blue-500 focus:outline-none">
+                    <option value="">카메라를 불러오는 중...</option>
+                </select>
+                <p class="text-sm text-gray-500 mt-2">
+                    사용할 카메라 장치를 선택하세요
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <button onclick="testCamera()"
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl">
+                    카메라 테스트
+                </button>
+            </div>
+
+            <!-- 카메라 미리보기 -->
+            <div id="cameraPreview" class="hidden mt-6">
+                <p class="text-sm font-bold mb-3">미리보기</p>
+                <div class="bg-gray-100 rounded-2xl overflow-hidden">
+                    <video id="previewVideo" autoplay playsinline class="w-full" style="max-height: 400px;"></video>
+                </div>
+                <button onclick="stopCamera()"
+                        class="mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold px-6 py-3 rounded-xl">
+                    미리보기 중지
+                </button>
+            </div>
+        </div>
+
+        <!-- 촬영 설정 -->
+        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+            <h2 class="text-2xl font-bold mb-6">촬영 설정</h2>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">총 촬영 횟수</label>
+                <input type="number" id="photoCount" value="6" min="4" max="10"
+                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                              focus:border-blue-500 focus:outline-none">
+                <p class="text-sm text-gray-500 mt-2">
+                    총 촬영할 사진 개수 (4~10장)
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">선택 사진 개수</label>
+                <input type="number" id="selectedCount" value="4" min="2" max="6"
+                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                              focus:border-blue-500 focus:outline-none">
+                <p class="text-sm text-gray-500 mt-2">
+                    최종 선택할 사진 개수 (2~6장)
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">카운트다운 시간</label>
+                <select id="countdownTime" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                                                     focus:border-blue-500 focus:outline-none">
+                    <option value="3">3초</option>
+                    <option value="5" selected>5초</option>
+                    <option value="10">10초</option>
+                </select>
+                <p class="text-sm text-gray-500 mt-2">
+                    촬영 버튼 클릭 후 대기 시간
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="flashEffect" checked
+                           class="w-5 h-5 rounded border-gray-300">
+                    <span class="ml-3 font-bold">플래시 효과</span>
+                </label>
+                <p class="text-sm text-gray-500 mt-2 ml-8">
+                    촬영 시 흰색 화면 깜빡임 효과
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="shutterSound" checked
+                           class="w-5 h-5 rounded border-gray-300">
+                    <span class="ml-3 font-bold">셔터 사운드</span>
+                </label>
+                <p class="text-sm text-gray-500 mt-2 ml-8">
+                    촬영 시 소리 효과 재생
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="mirrorMode"
+                           class="w-5 h-5 rounded border-gray-300">
+                    <span class="ml-3 font-bold">카메라 미러 모드</span>
+                </label>
+                <p class="text-sm text-gray-500 mt-2 ml-8">
+                    전면 카메라 좌우 반전 (거울처럼 표시)
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="fullscreenMode" checked
+                           class="w-5 h-5 rounded border-gray-300">
+                    <span class="ml-3 font-bold">전체화면 모드</span>
+                </label>
+                <p class="text-sm text-gray-500 mt-2 ml-8">
+                    앱 실행 시 전체화면으로 시작 (Electron 앱만 적용)
+                </p>
+            </div>
+        </div>
+
+        <!-- 프린터 설정 -->
+        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+            <h2 class="text-2xl font-bold mb-6">프린터 설정</h2>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">프린터 선택</label>
+                <input type="text" id="printerName" value="Kodak Dock ERA 6-inch" placeholder="프린터 이름을 입력하세요"
+                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                              focus:border-blue-500 focus:outline-none">
+                <p class="text-sm text-gray-500 mt-2">
+                    사용할 프린터 이름 (시스템 프린터 목록에서 확인)
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="autoPrint"
+                           class="w-5 h-5 rounded border-gray-300">
+                    <span class="ml-3 font-bold">자동 인쇄</span>
+                </label>
+                <p class="text-sm text-gray-500 mt-2 ml-8">
+                    촬영 완료 후 자동으로 인쇄
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">인쇄 매수</label>
+                <input type="number" id="printCopies" value="1" min="1" max="3"
+                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                              focus:border-blue-500 focus:outline-none">
+                <p class="text-sm text-gray-500 mt-2">
+                    한 번에 인쇄할 매수 (1~3장)
+                </p>
+            </div>
+        </div>
+
+        <!-- QR 코드 설정 -->
+        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+            <h2 class="text-2xl font-bold mb-6">QR 코드 설정</h2>
+
+            <div class="mb-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="enableQR" checked
+                           class="w-5 h-5 rounded border-gray-300">
+                    <span class="ml-3 font-bold">QR 코드 생성</span>
+                </label>
+                <p class="text-sm text-gray-500 mt-2 ml-8">
+                    촬영 완료 후 QR 코드 자동 생성
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">다운로드 유효기간</label>
+                <select id="qrExpiry" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                                             focus:border-blue-500 focus:outline-none">
+                    <option value="1">1일</option>
+                    <option value="7" selected>7일</option>
+                    <option value="30">30일</option>
+                    <option value="0">무제한</option>
+                </select>
+                <p class="text-sm text-gray-500 mt-2">
+                    QR 코드로 다운로드 가능한 기간
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">QR 코드 크기</label>
+                <select id="qrSize" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                                           focus:border-blue-500 focus:outline-none">
+                    <option value="small">작게 (200x200)</option>
+                    <option value="medium" selected>보통 (300x300)</option>
+                    <option value="large">크게 (400x400)</option>
+                </select>
+                <p class="text-sm text-gray-500 mt-2">
+                    생성되는 QR 코드의 크기
+                </p>
+            </div>
+        </div>
+
+        <!-- 프레임 관리 -->
+        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+            <h2 class="text-2xl font-bold mb-6">프레임 관리</h2>
+
+            <!-- 2x2 프레임 -->
+            <div class="mb-8">
+                <h3 class="text-lg font-bold mb-4 text-gray-700">2x2 프레임 (104mm x 154mm)</h3>
+
+                <!-- 업로드 -->
+                <div class="mb-4">
+                    <label class="block text-sm font-bold mb-2 text-gray-600">프레임 추가</label>
+                    <input type="file" id="upload2x2" accept="image/png"
+                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                                  focus:border-blue-500 focus:outline-none">
+                    <p class="text-sm text-gray-500 mt-2">
+                        PNG 파일만 업로드 가능 (권장 사이즈: 1230 x 1820px)
+                    </p>
+                    <button onclick="uploadFrame('2x2')"
+                            class="mt-3 bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl">
+                        업로드
+                    </button>
+                </div>
+
+                <!-- 프레임 목록 -->
+                <div class="mb-4">
+                    <label class="block text-sm font-bold mb-2 text-gray-600">등록된 프레임</label>
+                    <div id="frames2x2List" class="space-y-2">
+                        <p class="text-gray-400 text-sm">프레임 목록을 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1x4 프레임 -->
+            <div class="border-t pt-8">
+                <h3 class="text-lg font-bold mb-4 text-gray-700">1x4 프레임 (53mm x 154mm)</h3>
+
+                <!-- 업로드 -->
+                <div class="mb-4">
+                    <label class="block text-sm font-bold mb-2 text-gray-600">프레임 추가</label>
+                    <input type="file" id="upload1x4" accept="image/png"
+                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                                  focus:border-blue-500 focus:outline-none">
+                    <p class="text-sm text-gray-500 mt-2">
+                        PNG 파일만 업로드 가능 (권장 사이즈: 630 x 1820px)
+                    </p>
+                    <button onclick="uploadFrame('1x4')"
+                            class="mt-3 bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl">
+                        업로드
+                    </button>
+                </div>
+
+                <!-- 프레임 목록 -->
+                <div class="mb-4">
+                    <label class="block text-sm font-bold mb-2 text-gray-600">등록된 프레임</label>
+                    <div id="frames1x4List" class="space-y-2">
+                        <p class="text-gray-400 text-sm">프레임 목록을 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 정보 -->
+        <div class="setting-card bg-white rounded-3xl p-8">
+            <h2 class="text-2xl font-bold mb-6">정보</h2>
+
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-600">버전</span>
+                    <span class="font-bold">1.0.0</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-600">서버 URL</span>
+                    <span class="font-bold" id="serverUrl">http://localhost:3000</span>
+                </div>
+                <div class="flex justify-between py-2">
+                    <span class="text-gray-600">이름</span>
+                    <span class="font-bold">Masterpiece Photobooth</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 저장 버튼 -->
+        <div class="mt-8 flex gap-4">
+            <button onclick="saveSettings()"
+                    class="flex-1 bg-black hover:bg-gray-800 text-white font-bold text-lg
+                           py-5 rounded-2xl transition">
+                설정 저장
+            </button>
+            <button onclick="resetSettings()"
+                    class="flex-1 bg-gray-200 hover:bg-gray-300 text-black font-bold text-lg
+                           py-5 rounded-2xl transition">
+                기본값으로 초기화
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let testStream = null;
+
+        // 카메라 목록 불러오기
+        async function loadCameras() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+                const select = document.getElementById('cameraSelect');
+                select.innerHTML = '<option value="">카메라를 선택하세요...</option>';
+
+                videoDevices.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.textContent = device.label || `카메라 ${index + 1}`;
+                    select.appendChild(option);
+                });
+
+                if (videoDevices.length === 0) {
+                    select.innerHTML = '<option value="">사용 가능한 카메라 없음</option>';
+                }
+            } catch (error) {
+                console.error('카메라 목록 로드 실패:', error);
+                alert('카메라 목록을 불러올 수 없습니다.');
+            }
+        }
+
+        // 카메라 테스트
+        async function testCamera() {
+            const deviceId = document.getElementById('cameraSelect').value;
+            if (!deviceId) {
+                alert('카메라를 먼저 선택해주세요.');
+                return;
+            }
+
+            try {
+                // 기존 스트림 중지
+                if (testStream) {
+                    testStream.getTracks().forEach(track => track.stop());
+                }
+
+                // 새 스트림 시작
+                testStream = await navigator.mediaDevices.getUserMedia({
+                    video: { deviceId: { exact: deviceId } }
+                });
+
+                const video = document.getElementById('previewVideo');
+                video.srcObject = testStream;
+                document.getElementById('cameraPreview').classList.remove('hidden');
+            } catch (error) {
+                console.error('카메라 테스트 실패:', error);
+                alert('카메라를 시작할 수 없습니다.');
+            }
+        }
+
+        // 카메라 중지
+        function stopCamera() {
+            if (testStream) {
+                testStream.getTracks().forEach(track => track.stop());
+                testStream = null;
+            }
+            document.getElementById('cameraPreview').classList.add('hidden');
+        }
+
+        // 설정 저장
+        function saveSettings() {
+            const settings = {
+                // 카메라 설정
+                cameraId: document.getElementById('cameraSelect').value,
+
+                // 촬영 설정
+                photoCount: parseInt(document.getElementById('photoCount').value),
+                selectedCount: parseInt(document.getElementById('selectedCount').value),
+                countdownTime: parseInt(document.getElementById('countdownTime').value),
+                flashEffect: document.getElementById('flashEffect').checked,
+                shutterSound: document.getElementById('shutterSound').checked,
+                mirrorMode: document.getElementById('mirrorMode').checked,
+                fullscreenMode: document.getElementById('fullscreenMode').checked,
+
+                // 프린터 설정
+                printerName: document.getElementById('printerName').value,
+                autoPrint: document.getElementById('autoPrint').checked,
+                printCopies: parseInt(document.getElementById('printCopies').value),
+
+                // QR 코드 설정
+                enableQR: document.getElementById('enableQR').checked,
+                qrExpiry: parseInt(document.getElementById('qrExpiry').value),
+                qrSize: document.getElementById('qrSize').value
+            };
+
+            localStorage.setItem('photoboothSettings', JSON.stringify(settings));
+            alert('설정이 저장되었습니다.');
+        }
+
+        // 설정 불러오기
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('photoboothSettings');
+            if (savedSettings) {
+                try {
+                    const settings = JSON.parse(savedSettings);
+
+                    // 카메라 설정
+                    document.getElementById('cameraSelect').value = settings.cameraId || '';
+
+                    // 촬영 설정
+                    document.getElementById('photoCount').value = settings.photoCount || 6;
+                    document.getElementById('selectedCount').value = settings.selectedCount || 4;
+                    document.getElementById('countdownTime').value = settings.countdownTime || 5;
+                    document.getElementById('flashEffect').checked = settings.flashEffect !== false;
+                    document.getElementById('shutterSound').checked = settings.shutterSound !== false;
+                    document.getElementById('mirrorMode').checked = settings.mirrorMode || false;
+                    document.getElementById('fullscreenMode').checked = settings.fullscreenMode !== false;
+
+                    // 프린터 설정
+                    document.getElementById('printerName').value = settings.printerName || 'Kodak Dock ERA 6-inch';
+                    document.getElementById('autoPrint').checked = settings.autoPrint || false;
+                    document.getElementById('printCopies').value = settings.printCopies || 1;
+
+                    // QR 코드 설정
+                    document.getElementById('enableQR').checked = settings.enableQR !== false;
+                    document.getElementById('qrExpiry').value = settings.qrExpiry || 7;
+                    document.getElementById('qrSize').value = settings.qrSize || 'medium';
+                } catch (error) {
+                    console.error('설정 로드 실패:', error);
+                }
+            }
+        }
+
+        // 기본값으로 초기화
+        function resetSettings() {
+            if (confirm('모든 설정을 기본값으로 초기화하시겠습니까?')) {
+                localStorage.removeItem('photoboothSettings');
+
+                // 카메라 설정
+                document.getElementById('cameraSelect').value = '';
+
+                // 촬영 설정
+                document.getElementById('photoCount').value = 6;
+                document.getElementById('selectedCount').value = 4;
+                document.getElementById('countdownTime').value = 5;
+                document.getElementById('flashEffect').checked = true;
+                document.getElementById('shutterSound').checked = true;
+                document.getElementById('mirrorMode').checked = false;
+                document.getElementById('fullscreenMode').checked = true;
+
+                // 프린터 설정
+                document.getElementById('printerName').value = 'Kodak Dock ERA 6-inch';
+                document.getElementById('autoPrint').checked = false;
+                document.getElementById('printCopies').value = 1;
+
+                // QR 코드 설정
+                document.getElementById('enableQR').checked = true;
+                document.getElementById('qrExpiry').value = 7;
+                document.getElementById('qrSize').value = 'medium';
+
+                alert('기본값으로 초기화되었습니다.');
+            }
+        }
+
+        // 프레임 목록 불러오기
+        async function loadFrames(layout) {
+            try {
+                const response = await fetch(`/api/frames/${layout}`);
+                const data = await response.json();
+
+                const listId = layout === '2x2' ? 'frames2x2List' : 'frames1x4List';
+                const listEl = document.getElementById(listId);
+
+                if (data.success && data.frames.length > 0) {
+                    listEl.innerHTML = data.frames.map(frame => `
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-16 h-24 bg-white rounded border border-gray-200 flex items-center justify-center overflow-hidden">
+                                    <img src="${frame.path}" alt="${frame.name}"
+                                         class="w-full h-full object-contain"
+                                         style="max-width: 100%; max-height: 100%;">
+                                </div>
+                                <span class="font-medium">${frame.name}</span>
+                            </div>
+                            <button onclick="deleteFrame('${layout}', '${frame.name}')"
+                                    class="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-lg text-sm">
+                                삭제
+                            </button>
+                        </div>
+                    `).join('');
+                } else {
+                    listEl.innerHTML = '<p class="text-gray-400 text-sm">등록된 프레임이 없습니다.</p>';
+                }
+            } catch (error) {
+                console.error(`프레임 목록 로드 실패 (${layout}):`, error);
+                const listId = layout === '2x2' ? 'frames2x2List' : 'frames1x4List';
+                document.getElementById(listId).innerHTML = '<p class="text-red-500 text-sm">프레임 목록을 불러올 수 없습니다.</p>';
+            }
+        }
+
+        // 프레임 업로드
+        async function uploadFrame(layout) {
+            const inputId = layout === '2x2' ? 'upload2x2' : 'upload1x4';
+            const fileInput = document.getElementById(inputId);
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+
+            if (!file.type.includes('png')) {
+                alert('PNG 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('frame', file);
+            formData.append('layout', layout);
+
+            try {
+                const response = await fetch('/api/frames/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('프레임이 업로드되었습니다!');
+                    fileInput.value = '';
+                    loadFrames(layout);
+                } else {
+                    alert('업로드 실패: ' + (data.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('프레임 업로드 오류:', error);
+                alert('프레임 업로드 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 프레임 삭제
+        async function deleteFrame(layout, filename) {
+            if (!confirm(`${filename}을(를) 삭제하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/frames/${layout}/${filename}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('프레임이 삭제되었습니다.');
+                    loadFrames(layout);
+                } else {
+                    alert('삭제 실패: ' + (data.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('프레임 삭제 오류:', error);
+                alert('프레임 삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 돌아가기
+        function goBack() {
+            // 카메라 중지
+            stopCamera();
+            window.location.href = '/app/start';
+        }
+
+        // 서버 URL 표시
+        document.getElementById('serverUrl').textContent = window.location.origin;
+
+        // 초기화
+        window.addEventListener('load', () => {
+            loadCameras();
+            loadSettings();
+            loadFrames('2x2');
+            loadFrames('1x4');
+        });
+
+        // 페이지 종료 시 카메라 중지
+        window.addEventListener('beforeunload', () => {
+            stopCamera();
+        });
+    </script>
+</body>
+</html>

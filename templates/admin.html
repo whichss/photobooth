@@ -3,32 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>photobooth manger</title>
+    <title>Masterpiece - 관리자 콘솔</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        
+
         body {
             font-family: 'Pretendard', sans-serif;
-            background-color: #f9fafb;
+            background: #FFFFFF;
+            line-height: 1.7;
         }
-        
+
+        .header-gradient {
+            background: #000000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-logo {
+            color: #FFFFFF;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
         .card {
-            transition: all 0.3s;
+            background: #FAFAFA;
+            border-radius: 24px;
+            transition: all 0.2s ease;
+            border: none;
+            overflow: hidden;
         }
-        
+
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+            background: #F5F5F5;
         }
-        
+
+        .card img {
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover img {
+            transform: scale(1.05);
+        }
+
+        .tab-container {
+            background: #FAFAFA;
+            border-radius: 16px;
+            padding: 0.5rem;
+            display: inline-flex;
+        }
+
+        .tab-button {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #6B6B6B;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .tab-button:hover {
+            background-color: #F5F5F5;
+        }
+
         .tab-active {
-            background-color: #f3f4f6;
-            color: #111827;
-            font-weight: 500;
+            background: #000000;
+            color: white !important;
+            font-weight: 700;
         }
-        
+
+        .action-button {
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            background: #FFFFFF;
+            color: #000000;
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            background: #F5F5F5;
+        }
+
+        .action-button:active {
+            transform: scale(0.98);
+        }
+
+        .action-button-danger {
+            background: #FFFFFF;
+            color: #FF4040;
+        }
+
+        .action-button-danger:hover {
+            background: #FFF5F5;
+        }
+
+        .action-button-primary {
+            background: #000000;
+            color: #FFFFFF;
+        }
+
+        .action-button-primary:hover {
+            background: #1A1A1A;
+        }
+
+        .home-button {
+            background: white;
+            color: #000000;
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .home-button:hover {
+            background: #F5F5F5;
+        }
+
+        .home-button:active {
+            transform: scale(0.98);
+        }
+
         .dialog {
             display: none;
             position: fixed;
@@ -36,27 +142,43 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
             z-index: 50;
             align-items: center;
             justify-content: center;
         }
-        
+
         .dialog-content {
             background-color: white;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
+            padding: 3rem;
+            border-radius: 24px;
             max-width: 400px;
             width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .photo-preview {
+            aspect-ratio: 3/4;
+            background: #FAFAFA;
+            border-radius: 20px;
+            overflow: hidden;
         }
     </style>
 </head>
-<body class="min-h-screen bg-gray-50">
-    <header class="bg-white border-b">
-        <div class="container mx-auto py-4 px-4">
+<body class="min-h-screen">
+    <header class="header-gradient">
+        <div class="container mx-auto py-8 px-6">
             <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-rose-600">photobooth manger</h1>
-                <a href="/" class="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50">홍보web으로 이동</a>
+                <div>
+                    <h1 class="brand-logo text-5xl md:text-6xl mb-2">Masterpiece</h1>
+                    <p class="text-white text-lg font-medium opacity-90">
+                        <i class="fas fa-shield-halved mr-2"></i>관리자 콘솔
+                    </p>
+                </div>
+                <a href="/" class="home-button">
+                    <i class="fas fa-home mr-2"></i>홈으로
+                </a>
             </div>
         </div>
     </header>
@@ -64,9 +186,16 @@
     <main class="container mx-auto py-8 px-4">
         <div class="w-full mb-8">
             <div class="flex justify-between items-center mb-6">
-                <div class="flex border rounded-md overflow-hidden">
-                    <button id="gridViewTab" class="px-4 py-2 tab-active" onclick="switchTab('grid')">그리드 보기</button>
-                    <button id="listViewTab" class="px-4 py-2" onclick="switchTab('list')">리스트 보기</button>
+                <div class="tab-container flex">
+                    <button id="gridViewTab" class="tab-button tab-active" onclick="switchTab('grid')">
+                        <i class="fas fa-th-large mr-2"></i>그리드 보기
+                    </button>
+                    <button id="listViewTab" class="tab-button" onclick="switchTab('list')">
+                        <i class="fas fa-list mr-2"></i>리스트 보기
+                    </button>
+                    <button id="framesTab" class="tab-button" onclick="switchTab('frames')">
+                        <i class="fas fa-images mr-2"></i>프레임 관리
+                    </button>
                 </div>
             </div>
 
@@ -97,6 +226,67 @@
             </tr>
         </tbody>
     </table>
+                </div>
+            </div>
+
+            <!-- 프레임 관리 뷰 -->
+            <div id="framesView" class="mt-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 2x2 프레임 -->
+                    <div class="bg-white rounded-3xl p-8 shadow">
+                        <h3 class="text-2xl font-bold mb-6">2x2 프레임 (104mm x 154mm)</h3>
+
+                        <!-- 업로드 -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-bold mb-3 text-gray-700">프레임 추가</label>
+                            <input type="file" id="adminUpload2x2" accept="image/png"
+                                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                                          focus:border-black focus:outline-none">
+                            <p class="text-sm text-gray-500 mt-2">
+                                PNG 파일만 업로드 가능 (권장 사이즈: 1230 x 1820px)
+                            </p>
+                            <button onclick="adminUploadFrame('2x2')"
+                                    class="mt-4 bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 rounded-xl w-full">
+                                <i class="fas fa-upload mr-2"></i>업로드
+                            </button>
+                        </div>
+
+                        <!-- 프레임 목록 -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold mb-3 text-gray-700">등록된 프레임</label>
+                            <div id="adminFrames2x2List" class="space-y-3">
+                                <p class="text-gray-400 text-sm">프레임 목록을 불러오는 중...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 1x4 프레임 -->
+                    <div class="bg-white rounded-3xl p-8 shadow">
+                        <h3 class="text-2xl font-bold mb-6">1x4 프레임 (53mm x 154mm)</h3>
+
+                        <!-- 업로드 -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-bold mb-3 text-gray-700">프레임 추가</label>
+                            <input type="file" id="adminUpload1x4" accept="image/png"
+                                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                                          focus:border-black focus:outline-none">
+                            <p class="text-sm text-gray-500 mt-2">
+                                PNG 파일만 업로드 가능 (권장 사이즈: 630 x 1820px)
+                            </p>
+                            <button onclick="adminUploadFrame('1x4')"
+                                    class="mt-4 bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 rounded-xl w-full">
+                                <i class="fas fa-upload mr-2"></i>업로드
+                            </button>
+                        </div>
+
+                        <!-- 프레임 목록 -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold mb-3 text-gray-700">등록된 프레임</label>
+                            <div id="adminFrames1x4List" class="space-y-3">
+                                <p class="text-gray-400 text-sm">프레임 목록을 불러오는 중...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -214,24 +404,34 @@
         function renderGridItem(session) {
             // 세션에 최종 이미지가 없거나 임시 이미지인 경우 건너뜀
             if (!session.final_img || session.final_img.includes('temp_')) return;
-            
+
             return `
-                <div class="card relative bg-white p-4 rounded-lg shadow">
-                    <div class="mb-4 aspect-[3/4] bg-gray-100 rounded overflow-hidden">
-                        <img src="${session.final_img}" alt="Photo ${session.hash}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 viewBox=%220 0 100 100%22><rect width=%22100%%22 height=%22100%%22 fill=%22%23f3f4f6%22></rect><text x=%2250%%22 y=%2250%%22 font-family=%22sans-serif%22 font-size=%2220%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23d1d5db%22>이미지 없음</text></svg>'">
+                <div class="card p-0">
+                    <div class="photo-preview">
+                        <img src="${session.final_img}" alt="Photo ${session.hash}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 viewBox=%220 0 100 100%22><rect width=%22100%%22 height=%22100%%22 fill=%22%23f3f4f6%22></rect><text x=%2250%%22 y=%2250%%22 font-family=%22sans-serif%22 font-size=%2216%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23d1d5db%22>이미지 없음</text></svg>'">
                     </div>
-                    <div class="text-sm text-gray-500 mb-2">ID: ${session.hash}</div>
-                    <div class="text-sm text-gray-500 mb-4">날짜: ${formatDate(session.created_at)}</div>
-                    <div class="flex gap-2">
-                        <button class="px-3 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-50" onclick="showQrCode('${session.hash}')">
-                            <i class="fas fa-qrcode mr-1"></i> QR 코드
-                        </button>
-                        <a href="${session.final_img}" download class="px-3 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-50">
-                            <i class="fas fa-download mr-1"></i> 다운로드
-                        </a>
-                        <button class="px-3 py-1.5 text-sm rounded border border-rose-300 text-rose-600 hover:bg-rose-50" onclick="deleteSession('${session.hash}')">
-                            <i class="fas fa-trash-alt mr-1"></i> 삭제
-                        </button>
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <div class="text-xs text-gray-400 mb-1 font-medium">세션 ID</div>
+                            <div class="text-base font-bold text-gray-800 truncate">${session.hash}</div>
+                        </div>
+                        <div class="mb-6">
+                            <div class="text-xs text-gray-400 mb-1 font-medium">촬영 일시</div>
+                            <div class="text-sm font-medium text-gray-600">${formatDate(session.created_at)}</div>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <button class="action-button action-button-primary w-full text-center" onclick="showQrCode('${session.hash}')">
+                                <i class="fas fa-qrcode mr-2"></i>QR 코드
+                            </button>
+                            <div class="flex gap-3">
+                                <a href="${session.final_img}" download class="action-button flex-1 text-center">
+                                    <i class="fas fa-download mr-1"></i>저장
+                                </a>
+                                <button class="action-button action-button-danger flex-1" onclick="deleteSession('${session.hash}')">
+                                    <i class="fas fa-trash-alt mr-1"></i>삭제
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -294,14 +494,22 @@
         // 탭 전환
         function switchTab(viewType) {
             currentView = viewType;
-            
+
             // 탭 상태 업데이트
             document.getElementById('gridViewTab').classList.toggle('tab-active', viewType === 'grid');
             document.getElementById('listViewTab').classList.toggle('tab-active', viewType === 'list');
-            
+            document.getElementById('framesTab').classList.toggle('tab-active', viewType === 'frames');
+
             // 뷰 표시/숨김
             document.getElementById('gridView').style.display = viewType === 'grid' ? 'grid' : 'none';
             document.getElementById('listView').style.display = viewType === 'list' ? 'block' : 'none';
+            document.getElementById('framesView').style.display = viewType === 'frames' ? 'block' : 'none';
+
+            // 프레임 탭 열릴 때 프레임 목록 로드
+            if (viewType === 'frames') {
+                adminLoadFrames('2x2');
+                adminLoadFrames('1x4');
+            }
         }
         
         // 클립보드에 복사
@@ -404,7 +612,114 @@
                 statusMessage.style.display = 'none';
             }, 3000);
         }
-        
+
+        // 프레임 목록 불러오기 (관리자)
+        async function adminLoadFrames(layout) {
+            try {
+                const response = await fetch(`/api/frames/${layout}`);
+                const data = await response.json();
+
+                const listId = layout === '2x2' ? 'adminFrames2x2List' : 'adminFrames1x4List';
+                const listEl = document.getElementById(listId);
+
+                if (data.success && data.frames.length > 0) {
+                    listEl.innerHTML = data.frames.map(frame => `
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-24 bg-white rounded border border-gray-200 flex items-center justify-center overflow-hidden">
+                                    <img src="${frame.path}" alt="${frame.name}"
+                                         class="w-full h-full object-contain">
+                                </div>
+                                <span class="font-semibold text-gray-800">${frame.name}</span>
+                            </div>
+                            <button onclick="adminDeleteFrame('${layout}', '${frame.name}')"
+                                    class="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-trash mr-1"></i>삭제
+                            </button>
+                        </div>
+                    `).join('');
+                } else {
+                    listEl.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">등록된 프레임이 없습니다.</p>';
+                }
+            } catch (error) {
+                console.error(`프레임 목록 로드 실패 (${layout}):`, error);
+                const listId = layout === '2x2' ? 'adminFrames2x2List' : 'adminFrames1x4List';
+                document.getElementById(listId).innerHTML = '<p class="text-red-500 text-sm text-center py-4">프레임 목록을 불러올 수 없습니다.</p>';
+            }
+        }
+
+        // 프레임 업로드 (관리자)
+        async function adminUploadFrame(layout) {
+            const inputId = layout === '2x2' ? 'adminUpload2x2' : 'adminUpload1x4';
+            const fileInput = document.getElementById(inputId);
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+
+            if (!file.type.includes('png')) {
+                alert('PNG 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('frame', file);
+            formData.append('layout', layout);
+
+            try {
+                showLoading();
+                const response = await fetch('/api/frames/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess('프레임이 업로드되었습니다!');
+                    fileInput.value = '';
+                    adminLoadFrames(layout);
+                } else {
+                    showError('업로드 실패: ' + (data.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('프레임 업로드 오류:', error);
+                showError('프레임 업로드 중 오류가 발생했습니다.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 프레임 삭제 (관리자)
+        async function adminDeleteFrame(layout, filename) {
+            if (!confirm(`${filename}을(를) 삭제하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                showLoading();
+                const response = await fetch(`/api/frames/${layout}/${filename}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess('프레임이 삭제되었습니다.');
+                    adminLoadFrames(layout);
+                } else {
+                    showError('삭제 실패: ' + (data.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('프레임 삭제 오류:', error);
+                showError('프레임 삭제 중 오류가 발생했습니다.');
+            } finally {
+                hideLoading();
+            }
+        }
+
         // 다이얼로그 외부 클릭 시 닫기
         window.addEventListener('click', function(event) {
             const dialog = document.getElementById('qrDialog');

@@ -4,6 +4,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const qrcode = require('qrcode');
 const chokidar = require('chokidar');
+const multer = require('multer');
 // photo.py 연동 제거
 // const photoIntegration = require('./photo-integration');
 const ngrok = require('ngrok');
@@ -114,7 +115,21 @@ app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use('/photos', express.static(path.join(__dirname, 'photos')));
 app.use('/output', express.static(path.join(__dirname, 'output')));
 app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
+app.use('/frames', express.static(path.join(__dirname, 'frames')));
 app.use('/', express.static(path.join(__dirname, 'templates'))); // HTML 파일 직접 제공
+
+// 아이콘 파일 라우트 추가 (브라우저가 루트에서 찾음)
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static/favicon.png'));
+});
+
+app.get('/apple-touch-icon.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static/apple-touch-icon.png'));
+});
+
+app.get('/apple-touch-icon-precomposed.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static/apple-touch-icon-precomposed.png'));
+});
 
 // static 폴더 생성 (없는 경우)
 const staticDir = path.join(__dirname, 'static');
@@ -810,6 +825,47 @@ app.get('/promotion', (req, res) => {
   res.sendFile(path.join(__dirname, 'templates/promo.html'));
 });
 
+// 촬영 페이지 (구버전 - 웹 브라우저용)
+app.get('/capture', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates/capture.html'));
+});
+
+// ===== Electron 앱 전용 라우트 =====
+// 1. 시작 화면
+app.get('/app/start', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates/app/start.html'));
+});
+
+// 2. 프레임 선택
+app.get('/app/frame-select', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates/app/frame-select.html'));
+});
+
+// 3. 촬영 화면
+app.get('/app/capture', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates/app/capture.html'));
+});
+
+// 4. 사진 선택
+app.get('/app/photo-select', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates/app/photo-select.html'));
+});
+
+// 5. 프레임/필터 선택
+app.get('/app/frame-filter', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates/app/frame-filter.html'));
+});
+
+// 6. 결과 화면
+app.get('/app/result', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates/app/result.html'));
+});
+
+// 7. 설정 화면
+app.get('/app/settings', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates/app/settings.html'));
+});
+
 // 랜덤 이미지 제공 API
 app.get('/promo/random', (req, res) => {
   const validSessions = Object.values(sessions).filter(s => s.final_img);
@@ -851,6 +907,346 @@ app.get('/photo/:hash', (req, res) => {
     made_by: 'Masterpiece',
     date: new Date(session.created_at * 1000).toLocaleString('ko-KR')
   });
+});
+
+// 촬영 API (웹에서 캡처)
+app.post('/api/capture', express.json({ limit: '50mb' }), (req, res) => {
+  try {
+    const { image, sessionId } = req.body;
+
+    if (!image) {
+      return res.status(400).json({
+        success: false,
+        error: '이미지 데이터가 없습니다'
+      });
+    }
+
+    // Base64 이미지 디코딩
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    // 파일 저장 경로
+    const timestamp = Date.now();
+    const filename = `capture_${timestamp}.jpg`;
+    const filepath = path.join(__dirname, 'photos', filename);
+
+    // 이미지 저장
+    fs.writeFileSync(filepath, buffer);
+
+    console.log(`사진 촬영 완료: ${filename}`);
+
+    res.json({
+      success: true,
+      filename: `/photos/${filename}`,
+      message: '촬영 완료'
+    });
+
+  } catch (error) {
+    console.error('촬영 오류:', error);
+    res.status(500).json({
+      success: false,
+      error: '촬영 중 오류가 발생했습니다'
+    });
+  }
+});
+
+// 사진 처리 API (프레임 합성)
+app.post('/api/process-photos', express.json({ limit: '50mb' }), async (req, res) => {
+  try {
+    const { photos, frameColor, frameLayout } = req.body;
+
+    if (!photos || photos.length !== 4) {
+      return res.status(400).json({
+        success: false,
+        error: '4장의 사진이 필요합니다'
+      });
+    }
+
+    if (!frameColor || !['black', 'white', 'gray'].includes(frameColor)) {
+      return res.status(400).json({
+        success: false,
+        error: '유효하지 않은 프레임 색상입니다'
+      });
+    }
+
+    if (!frameLayout || !['2x2', '1x4'].includes(frameLayout)) {
+      return res.status(400).json({
+        success: false,
+        error: '유효하지 않은 레이아웃입니다'
+      });
+    }
+
+    // sharp 라이브러리 동적 로드
+    let sharp;
+    try {
+      sharp = require('sharp');
+    } catch (err) {
+      console.error('sharp 라이브러리가 설치되지 않았습니다. npm install sharp를 실행하세요.');
+      return res.status(500).json({
+        success: false,
+        error: 'sharp 라이브러리가 필요합니다. 서버 관리자에게 문의하세요.'
+      });
+    }
+
+    // 프레임 색상 RGB 값
+    const frameColors = {
+      black: { r: 18, g: 18, b: 18 },
+      white: { r: 245, g: 245, b: 245 },
+      gray: { r: 66, g: 66, b: 66 }
+    };
+
+    const bgColor = frameColors[frameColor];
+
+    // 실제 프레임 크기 (300 DPI 기준)
+    // 1x4: 53mm x 154mm = 630px x 1820px
+    // 2x2: 104mm x 154mm = 1230px x 1820px
+    let outputWidth, outputHeight;
+    let photoPositions;
+
+    if (frameLayout === '2x2') {
+      // 2x2 그리드 (104mm x 154mm)
+      outputWidth = 1230;
+      outputHeight = 1820;
+
+      const margin = 60;  // 상하좌우 여백
+      const gap = 20;     // 사진 간 간격
+      const photoWidth = Math.floor((outputWidth - margin * 2 - gap) / 2);
+      const photoHeight = Math.floor((outputHeight - margin * 2 - gap) / 2);
+
+      photoPositions = [
+        { x: margin, y: margin, width: photoWidth, height: photoHeight },  // 좌상단
+        { x: margin + photoWidth + gap, y: margin, width: photoWidth, height: photoHeight },  // 우상단
+        { x: margin, y: margin + photoHeight + gap, width: photoWidth, height: photoHeight }, // 좌하단
+        { x: margin + photoWidth + gap, y: margin + photoHeight + gap, width: photoWidth, height: photoHeight }  // 우하단
+      ];
+    } else if (frameLayout === '1x4') {
+      // 1x4 세로 (53mm x 154mm)
+      outputWidth = 630;
+      outputHeight = 1820;
+
+      const marginX = 40;   // 좌우 여백
+      const marginTop = 40; // 상단 여백
+      const marginBottom = 220; // 하단 여백 (문구/로고 공간)
+      const gap = 20;       // 사진 간 간격 (증가)
+
+      // 16:9 비율로 사진 크기 계산
+      const photoWidth = outputWidth - marginX * 2;  // 550px
+      const photoHeight = Math.floor(photoWidth / 16 * 9); // 309px (16:9 비율)
+
+      photoPositions = [
+        { x: marginX, y: marginTop, width: photoWidth, height: photoHeight },
+        { x: marginX, y: marginTop + (photoHeight + gap) * 1, width: photoWidth, height: photoHeight },
+        { x: marginX, y: marginTop + (photoHeight + gap) * 2, width: photoWidth, height: photoHeight },
+        { x: marginX, y: marginTop + (photoHeight + gap) * 3, width: photoWidth, height: photoHeight }
+      ];
+    }
+
+    // 빈 프레임 생성
+    const frameBuffer = await sharp({
+      create: {
+        width: outputWidth,
+        height: outputHeight,
+        channels: 3,
+        background: bgColor
+      }
+    }).png().toBuffer();
+
+    // 각 사진을 리사이즈하고 합성할 준비
+    const compositeOperations = [];
+
+    for (let i = 0; i < 4; i++) {
+      const photoPath = photos[i];
+      const pos = photoPositions[i];
+
+      // 사진 경로에서 실제 파일 경로 추출 (상대 경로 처리)
+      const actualPath = photoPath.startsWith('/')
+        ? path.join(__dirname, photoPath.substring(1))
+        : path.join(__dirname, photoPath);
+
+      if (!fs.existsSync(actualPath)) {
+        console.error(`사진을 찾을 수 없습니다: ${actualPath}`);
+        continue;
+      }
+
+      // 사진 리사이즈 (여백은 배경색으로 채움)
+      const resizedPhoto = await sharp(actualPath)
+        .resize(pos.width, pos.height, {
+          fit: 'contain',
+          position: 'center',
+          background: bgColor
+        })
+        .toBuffer();
+
+      compositeOperations.push({
+        input: resizedPhoto,
+        top: pos.y,
+        left: pos.x
+      });
+    }
+
+    // 프레임에 사진들 합성
+    const compositeImage = await sharp(frameBuffer)
+      .composite(compositeOperations)
+      .png()
+      .toBuffer();
+
+    // 출력 디렉토리 확인
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    // 세션 ID 생성 (타임스탬프 기반)
+    const sessionId = Date.now();
+    const outputFilename = `session_${sessionId}_final.png`;
+    const outputPath = path.join(outputDir, outputFilename);
+
+    // 최종 이미지 저장
+    fs.writeFileSync(outputPath, compositeImage);
+    console.log(`최종 이미지 저장: ${outputPath}`);
+
+    // QR 코드 생성 (다운로드 URL)
+    const downloadUrl = `${getBaseUrl()}/download?img=output/${outputFilename}`;
+    const qrCodeDataUrl = await generateQRCode(downloadUrl);
+
+    // QR 코드를 이미지로 저장
+    const qrFilename = `qr_${sessionId}.png`;
+    const qrPath = path.join(qrCodesDir, qrFilename);
+    const qrData = qrCodeDataUrl.replace(/^data:image\/png;base64,/, '');
+    fs.writeFileSync(qrPath, qrData, 'base64');
+
+    console.log(`처리 완료: 최종 이미지 = ${outputFilename}, QR 코드 = ${qrFilename}`);
+
+    res.json({
+      success: true,
+      finalImage: `/output/${outputFilename}`,
+      qrCode: qrCodeDataUrl,
+      downloadUrl: downloadUrl
+    });
+
+  } catch (error) {
+    console.error('사진 처리 오류:', error);
+    res.status(500).json({
+      success: false,
+      error: '사진 처리 중 오류가 발생했습니다: ' + error.message
+    });
+  }
+});
+
+// Multer 설정 - 프레임 업로드용
+const frameStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const layout = req.body.layout || '2x2';
+    const frameDir = path.join(__dirname, 'frames', layout);
+    if (!fs.existsSync(frameDir)) {
+      fs.mkdirSync(frameDir, { recursive: true });
+    }
+    cb(null, frameDir);
+  },
+  filename: function (req, file, cb) {
+    // 원본 파일명 사용 (확장자 포함)
+    cb(null, file.originalname);
+  }
+});
+
+const uploadFrame = multer({
+  storage: frameStorage,
+  fileFilter: function (req, file, cb) {
+    // PNG 파일만 허용
+    if (file.mimetype === 'image/png') {
+      cb(null, true);
+    } else {
+      cb(new Error('PNG 파일만 업로드 가능합니다.'));
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB 제한
+  }
+});
+
+// 프레임 목록 조회 API
+app.get('/api/frames/:layout', (req, res) => {
+  try {
+    const layout = req.params.layout;
+    if (layout !== '1x4' && layout !== '2x2') {
+      return res.status(400).json({ success: false, error: '잘못된 레이아웃입니다.' });
+    }
+
+    const frameDir = path.join(__dirname, 'frames', layout);
+    if (!fs.existsSync(frameDir)) {
+      return res.json({ success: true, frames: [] });
+    }
+
+    const files = fs.readdirSync(frameDir);
+    const frames = files
+      .filter(file => file.endsWith('.png'))
+      .map(file => {
+        const id = file.replace('.png', '');
+        return {
+          id: id,
+          name: file,
+          path: `/frames/${layout}/${file}`,
+          description: id.replace(/_/g, ' ')
+        };
+      });
+
+    res.json({ success: true, frames: frames });
+  } catch (error) {
+    console.error('프레임 목록 조회 오류:', error);
+    res.status(500).json({ success: false, error: '프레임 목록 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+// 프레임 업로드 API
+app.post('/api/frames/upload', uploadFrame.single('frame'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: '파일이 업로드되지 않았습니다.' });
+    }
+
+    const layout = req.body.layout;
+    const filename = req.file.filename;
+
+    console.log(`프레임 업로드 완료: ${layout}/${filename}`);
+
+    res.json({
+      success: true,
+      message: '프레임이 업로드되었습니다.',
+      frame: {
+        id: filename.replace('.png', ''),
+        name: filename,
+        path: `/frames/${layout}/${filename}`
+      }
+    });
+  } catch (error) {
+    console.error('프레임 업로드 오류:', error);
+    res.status(500).json({ success: false, error: '프레임 업로드 중 오류가 발생했습니다.' });
+  }
+});
+
+// 프레임 삭제 API
+app.delete('/api/frames/:layout/:filename', (req, res) => {
+  try {
+    const layout = req.params.layout;
+    const filename = req.params.filename;
+
+    if (layout !== '1x4' && layout !== '2x2') {
+      return res.status(400).json({ success: false, error: '잘못된 레이아웃입니다.' });
+    }
+
+    const framePath = path.join(__dirname, 'frames', layout, filename);
+
+    if (!fs.existsSync(framePath)) {
+      return res.status(404).json({ success: false, error: '프레임 파일을 찾을 수 없습니다.' });
+    }
+
+    fs.unlinkSync(framePath);
+    console.log(`프레임 삭제 완료: ${layout}/${filename}`);
+
+    res.json({ success: true, message: '프레임이 삭제되었습니다.' });
+  } catch (error) {
+    console.error('프레임 삭제 오류:', error);
+    res.status(500).json({ success: false, error: '프레임 삭제 중 오류가 발생했습니다.' });
+  }
 });
 
 // 세션 생성 API

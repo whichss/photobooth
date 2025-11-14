@@ -1,16 +1,94 @@
-/* 기본 스타일 */
-body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+/* ========================================
+   디자인 시스템 - CSS 변수
+   ======================================== */
+:root {
+    /* 브랜드 컬러 - 미니멀 블랙 & 화이트 */
+    --primary: #000000;
+    --primary-dark: #1A1A1A;
+    --primary-light: #4A4A4A;
+    --accent: #000000;
+    --accent-dark: #1A1A1A;
+
+    /* 중립 컬러 */
+    --dark: #000000;
+    --gray-900: #1A1A1A;
+    --gray-800: #2D2D2D;
+    --gray-700: #4A4A4A;
+    --gray-600: #6B6B6B;
+    --gray-500: #9E9E9E;
+    --gray-400: #BDBDBD;
+    --gray-300: #E0E0E0;
+    --gray-200: #EEEEEE;
+    --gray-100: #F5F5F5;
+    --white: #FFFFFF;
+
+    /* 배경 컬러 */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #FAFAFA;
+    --bg-light: #F5F5F5;
+
+    /* 텍스트 컬러 */
+    --text-primary: #000000;
+    --text-secondary: #4A4A4A;
+    --text-tertiary: #9E9E9E;
+    --text-inverse: #FFFFFF;
+
+    /* 그림자 */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
+
+    /* 간격 */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    /* 둥근 모서리 */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* 전환 효과 */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 카메라 프리뷰 스타일 */
+/* ========================================
+   기본 스타일
+   ======================================== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   카메라 관련 스타일
+   ======================================== */
 .camera-preview {
     position: relative;
     width: 100%;
     height: 0;
-    padding-bottom: 75%; /* 4:3 비율 */
+    padding-bottom: 75%;
     overflow: hidden;
-    background-color: #1a1a1a;
+    background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-800) 100%);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
 }
 
 .camera-preview img {
@@ -26,10 +104,17 @@ body {
 .captured-photo {
     position: relative;
     width: 100%;
-    padding-bottom: 100%; /* 1:1 비율 */
+    padding-bottom: 100%;
     overflow: hidden;
-    border-radius: 0.5rem;
-    background-color: #2d2d2d;
+    border-radius: var(--radius-lg);
+    background-color: var(--gray-100);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.captured-photo:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-4px);
 }
 
 .captured-photo img {
@@ -48,61 +133,203 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 8rem;
-    font-weight: bold;
-    color: white;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    font-weight: 800;
+    color: var(--white);
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5),
+                 0 0 40px rgba(0, 0, 0, 0.5);
     z-index: 10;
+    animation: pulse 1s ease-in-out infinite;
 }
 
-/* 애니메이션 */
+/* ========================================
+   애니메이션
+   ======================================== */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes scaleIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
 }
 
 .fade-in {
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fadeIn 0.4s ease-out;
 }
 
 .scale-in {
-    animation: scaleIn 0.3s ease-in-out;
+    animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 버튼 호버 효과 */
+.slide-up {
+    animation: slideUp 0.5s ease-out;
+}
+
+/* ========================================
+   버튼 스타일
+   ======================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--white);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background-color: var(--white);
+    color: var(--primary);
+    border: 2px solid var(--primary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary);
+    color: var(--white);
+}
+
 .hover-effect {
-    transition: transform 0.2s ease-in-out;
+    transition: all var(--transition-base);
 }
 
 .hover-effect:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
 }
 
 /* 프레임 색상 버튼 스타일 */
 .frame-color-btn {
-    transition: all 0.2s ease-in-out;
+    transition: all var(--transition-base);
+    border-radius: var(--radius-md);
+    cursor: pointer;
 }
 
 .frame-color-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
 }
 
 .frame-color-btn.selected {
-    border: 2px solid #3b82f6;
+    border: 3px solid var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
 }
 
-/* 반응형 디자인 */
+/* ========================================
+   카드 스타일
+   ======================================== */
+.card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-xl);
+    transition: all var(--transition-base);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-4px);
+}
+
+/* ========================================
+   로딩 스타일
+   ======================================== */
+.loading-skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--gray-200) 0%,
+        var(--gray-100) 50%,
+        var(--gray-200) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-md);
+}
+
+/* ========================================
+   반응형 디자인
+   ======================================== */
 @media (max-width: 768px) {
     .container {
-        padding: 1rem;
+        padding: var(--spacing-md);
     }
-    
+
     .countdown {
-        font-size: 6rem;
+        font-size: 5rem;
+    }
+
+    .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.9375rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .countdown {
+        font-size: 4rem;
     }
 } 

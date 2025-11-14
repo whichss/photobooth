@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프레임 디자인 선택 - Masterpiece</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: white;
+            overflow: hidden;
+        }
+
+        .frame-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 12px;
+            border: 3px solid #E5E7EB;
+            background: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+
+        .frame-option:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: #F9FAFB;
+        }
+
+        .frame-option.selected {
+            border-color: #3B82F6;
+            background: #EFF6FF;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .preview-container {
+            background: #F3F4F6;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            max-height: 75vh;
+        }
+
+        .preview-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 1.6%;
+            width: 100%;
+            max-width: 300px;
+            max-height: 450px;
+            aspect-ratio: 1230/1820;
+            padding: 4.88%;
+            box-sizing: border-box;
+        }
+
+        .preview-1x4 {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: repeat(4, 1fr);
+            gap: 3.17%;
+            width: 100%;
+            max-width: 180px;
+            max-height: 65vh;
+            aspect-ratio: 630/1820;
+            padding-top: 2.2%;
+            padding-bottom: 12.1%;
+            padding-left: 6.35%;
+            padding-right: 6.35%;
+            box-sizing: border-box;
+        }
+
+        .timer-bar {
+            background: white;
+            padding: 15px 40px;
+            position: relative;
+        }
+
+        .timer {
+            position: absolute;
+            top: 50%;
+            right: 40px;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3B82F6;
+        }
+
+        .preview-2x2 img, .preview-1x4 img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .preview-2x2 > *, .preview-1x4 > * {
+            background: transparent;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .preview-1x4 > * {
+            aspect-ratio: 550/309;
+        }
+
+        .preview-2x2 > * {
+            aspect-ratio: 545/840;
+        }
+
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- 헤더 -->
+    <div class="bg-black py-5 px-8 flex items-center justify-between">
+        <div class="w-32"></div>
+        <h1 class="text-white text-3xl font-bold">프레임 디자인 선택</h1>
+        <button onclick="goNext()" id="headerNextBtn"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg
+                       px-8 py-3 rounded-xl transition disabled:bg-gray-600 disabled:cursor-not-allowed"
+                disabled>
+            확인
+        </button>
+    </div>
+
+    <!-- 타이머 바 -->
+    <div class="timer-bar">
+        <div class="timer" id="timer">60</div>
+    </div>
+
+    <!-- 상단 안내 -->
+    <div class="text-center pt-3 pb-2">
+        <h2 class="text-gray-800 text-xl font-bold">원하는 프레임 디자인을 선택해 주세요</h2>
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="flex-1 flex items-center px-8 pb-6 gap-8 overflow-hidden" style="max-height: calc(100vh - 200px);">
+        <!-- 좌측: 큰 미리보기 -->
+        <div class="w-5/12 h-full flex items-center justify-center">
+            <div class="preview-container">
+                <div id="previewGrid" class="preview-2x2">
+                    <!-- JavaScript로 채워짐 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 우측: 프레임 선택 -->
+        <div class="w-7/12 h-full flex items-center justify-center">
+            <div id="frameGrid" class="flex flex-col gap-3 w-full max-w-md">
+                <!-- JavaScript로 채워짐 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFrame = null;
+        let selectedPhotos = [];
+        let frameLayout = '2x2';
+        let timeLeft = 60;
+        let timerInterval = null;
+        let availableFrames = [];
+
+        // 서버에서 프레임 목록 불러오기
+        async function loadFramesFromServer() {
+            try {
+                const response = await fetch(`/api/frames/${frameLayout}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    availableFrames = data.frames.map(frame => ({
+                        id: frame.id,
+                        name: frame.name,
+                        path: frame.path,
+                        description: frame.description,
+                        bgColor: getColorFromFilename(frame.name)
+                    }));
+
+                    console.log(`프레임 ${availableFrames.length}개 로드됨`);
+
+                    // 프레임 옵션 렌더링
+                    renderFrames();
+                } else {
+                    console.error('프레임 목록 로드 실패');
+                    availableFrames = [];
+                }
+            } catch (error) {
+                console.error('프레임 로드 오류:', error);
+                availableFrames = [];
+            }
+        }
+
+        // 파일명에서 배경색 추론
+        function getColorFromFilename(filename) {
+            const name = filename.toLowerCase();
+            if (name.includes('black')) return '#121212';
+            if (name.includes('white')) return '#F5F5F5';
+            if (name.includes('gray') || name.includes('grey')) return '#424242';
+            return '#F3F4F6'; // 기본색
+        }
+
+        // 초기화
+        async function init() {
+            // 선택된 사진들 불러오기
+            const photosJson = sessionStorage.getItem('selectedPhotos');
+            if (!photosJson) {
+                alert('선택된 사진이 없습니다.');
+                window.location.href = '/app/start';
+                return;
+            }
+
+            selectedPhotos = JSON.parse(photosJson);
+            frameLayout = sessionStorage.getItem('frameLayout') || '2x2';
+
+            console.log(`선택된 사진 ${selectedPhotos.length}장, 레이아웃: ${frameLayout}`);
+
+            // 초기 미리보기 렌더링 (프레임 없음)
+            renderPreview(null);
+
+            // 서버에서 프레임 목록 불러오기
+            await loadFramesFromServer();
+
+            // 타이머 시작
+            startTimer();
+        }
+
+        // 타이머 시작
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // 자동으로 첫 번째 프레임 선택
+                    if (!selectedFrame && availableFrames.length > 0) {
+                        selectFrame(availableFrames[0].id);
+                    }
+                    setTimeout(() => goNext(), 1000);
+                }
+            }, 1000);
+        }
+
+        // 미리보기 렌더링
+        function renderPreview(frameId) {
+            const container = document.getElementById('previewGrid');
+            container.className = frameLayout === '2x2' ? 'preview-2x2' : 'preview-1x4';
+
+            let html = '';
+            for (let i = 0; i < selectedPhotos.length; i++) {
+                html += `<img src="${selectedPhotos[i]}" alt="Photo ${i+1}">`;
+            }
+
+            container.innerHTML = html;
+
+            // 프레임 선택 시 배경색 변경 (실제 프레임 적용은 서버에서)
+            const parentDiv = container.closest('.preview-container');
+            if (frameId) {
+                const frame = availableFrames.find(f => f.id === frameId);
+                if (frame) {
+                    parentDiv.style.background = frame.bgColor;
+                }
+            } else {
+                parentDiv.style.background = '#F3F4F6';
+            }
+        }
+
+        // 프레임 옵션 렌더링
+        function renderFrames() {
+            const grid = document.getElementById('frameGrid');
+            grid.innerHTML = '';
+
+            availableFrames.forEach(frame => {
+                const div = document.createElement('div');
+                div.className = 'frame-option';
+                div.onclick = () => selectFrame(frame.id);
+                div.id = `frame-${frame.id}`;
+
+                // 파일명에서 확장자 제거
+                const frameName = frame.path.split('/').pop().replace(/\.(png|jpg|jpeg)$/i, '');
+
+                div.innerHTML = `
+                    <h3 class="text-gray-800 font-bold text-lg">${frameName}</h3>
+                    <p class="text-gray-500 text-sm mt-1">${frame.description}</p>
+                `;
+
+                grid.appendChild(div);
+            });
+        }
+
+        // 프레임 선택
+        function selectFrame(frameId) {
+            selectedFrame = frameId;
+
+            // 모든 프레임 선택 해제
+            document.querySelectorAll('.frame-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+
+            // 선택된 프레임 표시
+            const selected = document.getElementById(`frame-${frameId}`);
+            selected.classList.add('selected');
+
+            // 미리보기 업데이트
+            renderPreview(frameId);
+
+            // 확인 버튼 활성화
+            document.getElementById('headerNextBtn').disabled = false;
+
+            console.log(`프레임 선택: ${frameId}`);
+        }
+
+        // 다음 단계로 (서버 처리)
+        async function goNext() {
+            if (!selectedFrame) {
+                alert('프레임을 선택해주세요.');
+                return;
+            }
+
+            // 타이머 중지
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            // 로딩 상태 표시
+            const headerNextBtn = document.getElementById('headerNextBtn');
+            headerNextBtn.textContent = '처리 중...';
+            headerNextBtn.disabled = true;
+
+            try {
+                // frameId를 frameColor로 변환
+                const frameColorMap = {
+                    'black_frame': 'black',
+                    'white_frame': 'white',
+                    'gray_frame': 'gray'
+                };
+                const frameColor = frameColorMap[selectedFrame] || 'black';
+
+                // 레이아웃은 그대로 전달 (이미 1x4 또는 2x2)
+                const serverLayout = frameLayout;
+
+                // 서버로 처리 요청
+                const response = await fetch('/api/process-photos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        photos: selectedPhotos,
+                        frameColor: frameColor,
+                        frameLayout: serverLayout
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 결과 화면으로
+                    sessionStorage.setItem('finalResult', JSON.stringify(result));
+                    window.location.href = '/app/result';
+                } else {
+                    alert('처리 중 오류가 발생했습니다.');
+                    headerNextBtn.textContent = '확인';
+                    headerNextBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('처리 오류:', error);
+                alert('처리 중 오류가 발생했습니다.');
+                headerNextBtn.textContent = '확인';
+                headerNextBtn.disabled = false;
+            }
+        }
+
+        // 초기화 실행
+        init();
+    </script>
+</body>
+</html>

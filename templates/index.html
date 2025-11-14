@@ -3,78 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masterpiece 포토부스</title>
+    <title>Masterpiece Photobooth - 특별한 순간을 담다</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        
+
         body {
             font-family: 'Pretendard', sans-serif;
+            background: #FFFFFF;
+            min-height: 100vh;
+            line-height: 1.7;
         }
-        
+
+        .hero-section {
+            background: #FFFFFF;
+            padding: 5rem 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .brand-logo {
+            display: inline-block;
+            color: #000000;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
         .menu-item {
-            transition: all 0.3s ease;
+            background: #FAFAFA;
+            border-radius: 24px;
+            padding: 3.5rem 2.5rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
         }
-        
+
         .menu-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background: #F5F5F5;
+            transform: translateY(-2px);
+        }
+
+        .menu-item:active {
+            transform: translateY(0);
+        }
+
+        .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+        }
+
+        .icon-wrapper i {
+            color: white;
+            font-size: 1.75rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #000000;
+            color: white;
+            padding: 1.125rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.0625rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .cta-button:hover {
+            background: #1A1A1A;
+        }
+
+        .cta-button:active {
+            transform: scale(0.98);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #F5F5F5;
+            color: #6B6B6B;
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            margin-top: 1.5rem;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .feature-tag {
+            background: #FAFAFA;
+            color: #4A4A4A;
+            padding: 0.625rem 1.125rem;
+            border-radius: 100px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+        }
+
+        .footer-link {
+            color: #9E9E9E;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-weight: 500;
+            font-size: 0.9375rem;
+        }
+
+        .footer-link:hover {
+            color: #000000;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 3rem 1.5rem;
+            }
+
+            .menu-item {
+                padding: 2.5rem 2rem;
+            }
+
+            .icon-wrapper {
+                width: 56px;
+                height: 56px;
+            }
+
+            .icon-wrapper i {
+                font-size: 1.5rem;
+            }
+
+            .brand-logo {
+                font-size: 3rem !important;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-b from-rose-50 to-pink-100">
-    <header class="container mx-auto py-8 px-4">
-        <div class="flex flex-col items-center text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold text-rose-600 mb-4">Masterpiece</h1>
-            <p class="text-lg text-gray-700 max-w-2xl">
-                특별한 순간을 담아내는 포토부스에 오신 것을 환영합니다. 아름다운 추억을 만들어보세요.
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        <!-- Hero Section -->
+        <header class="hero-section text-center fade-in">
+            <div class="mb-6">
+                <h1 class="brand-logo text-6xl md:text-8xl mb-6">Masterpiece</h1>
+                <p class="text-2xl md:text-3xl font-bold mb-4" style="color: #000000; letter-spacing: -0.02em;">
+                    특별한 순간을<br class="md:hidden"> 담는 포토부스
+                </p>
+                <p class="text-lg md:text-xl font-medium max-w-xl mx-auto" style="color: #6B6B6B; line-height: 1.8;">
+                    프로페셔널 사진 촬영부터<br class="md:hidden"> QR 공유까지 한번에
+                </p>
+            </div>
+
+            <div class="feature-list">
+                <span class="feature-tag">HD 고화질</span>
+                <span class="feature-tag">실시간 프리뷰</span>
+                <span class="feature-tag">QR 공유</span>
+                <span class="feature-tag">모바일 최적화</span>
+            </div>
+        </header>
+
+        <!-- Menu Cards -->
+        <main class="pb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <!-- Admin Card -->
+                <div class="menu-item scale-in" style="animation-delay: 0.1s;">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-4" style="color: #000000; letter-spacing: -0.02em;">관리자</h2>
+                    <p class="text-lg mb-8" style="color: #6B6B6B; line-height: 1.7;">
+                        촬영한 사진을 관리하고<br>QR 코드를 생성하세요
+                    </p>
+                    <a href="/admin" class="cta-button">
+                        시작하기
+                    </a>
+                </div>
+
+                <!-- Gallery Card -->
+                <div class="menu-item scale-in" style="animation-delay: 0.2s;">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-4" style="color: #000000; letter-spacing: -0.02em;">갤러리</h2>
+                    <p class="text-lg mb-8" style="color: #6B6B6B; line-height: 1.7;">
+                        촬영한 사진을 전시하고<br>실시간으로 공유하세요
+                    </p>
+                    <a href="/promotion" class="cta-button">
+                        보러가기
+                    </a>
+                </div>
+
+                <!-- QR Card -->
+                <div class="menu-item scale-in" style="animation-delay: 0.3s;">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-4" style="color: #000000; letter-spacing: -0.02em;">QR 다운로드</h2>
+                    <p class="text-lg mb-8" style="color: #6B6B6B; line-height: 1.7;">
+                        QR 코드 스캔으로<br>사진을 즉시 다운로드
+                    </p>
+                    <div class="badge">
+                        촬영 후 자동 생성
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center pt-16 pb-12">
+            <div class="flex justify-center items-center space-x-8 mb-8">
+                <a href="/" class="footer-link">홈</a>
+                <a href="/admin" class="footer-link">관리자</a>
+                <a href="/promotion" class="footer-link">갤러리</a>
+            </div>
+            <p style="color: #BDBDBD; font-size: 0.875rem; font-weight: 500;">
+                © 2025 Masterpiece Photobooth
             </p>
-        </div>
-    </header>
-
-    <main class="container mx-auto py-8 px-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="menu-item bg-white rounded-xl p-8 text-center shadow-md">
-                <div class="text-5xl mb-5 text-rose-600">
-                    <i class="fas fa-camera-retro"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-3">관리자 페이지</h2>
-                <p class="text-gray-600 mb-6">촬영된 모든 사진과 QR 코드를 관리할 수 있는 관리자 페이지입니다.</p>
-                <a href="/admin" class="inline-block bg-rose-600 text-white px-6 py-3 rounded-lg hover:bg-rose-700 transition-colors">
-                    관리자 페이지 이동
-                </a>
-            </div>
-            
-            <div class="menu-item bg-white rounded-xl p-8 text-center shadow-md">
-                <div class="text-5xl mb-5 text-rose-600">
-                    <i class="fas fa-images"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-3">갤러리</h2>
-                <p class="text-gray-600 mb-6">촬영된 사진들을 갤러리 형태로 보여주는 홍보용 페이지입니다.</p>
-                <a href="/promotion" class="inline-block bg-rose-600 text-white px-6 py-3 rounded-lg hover:bg-rose-700 transition-colors">
-                    갤러리 보기
-                </a>
-            </div>
-            
-            <div class="menu-item bg-white rounded-xl p-8 text-center shadow-md">
-                <div class="text-5xl mb-5 text-rose-600">
-                    <i class="fas fa-qrcode"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-3">QR 스캔 페이지</h2>
-                <p class="text-gray-600 mb-6">QR 코드 스캔으로 접속하는 모바일 최적화 페이지입니다.</p>
-                <p class="text-sm text-gray-500 italic">* QR 코드는 촬영 후 생성됩니다</p>
-            </div>
-        </div>
-    </main>
-
-    <footer class="container mx-auto py-10 px-4 text-center text-gray-600">
-        <p>© 2024 Masterpiece 포토부스 시스템</p>
-        <div class="mt-3 flex justify-center space-x-4">
-            <a href="/" class="text-rose-600 hover:underline">홈</a>
-            <a href="/admin" class="text-rose-600 hover:underline">관리자</a>
-            <a href="/promotion" class="text-rose-600 hover:underline">갤러리</a>
-        </div>
-    </footer>
+        </footer>
+    </div>
 </body>
 </html> 
