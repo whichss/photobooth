@@ -10,7 +10,7 @@ Node.js + Express 기반의 웹 서버와 Electron 데스크톱 애플리케이�
 - 다양한 프레임 및 필터 적용
 - 최대 4장의 사진 조합 및 레이아웃
 - QR 코드를 통한 다운로드 기능
-- 모던한 Toss 스타일 UI/UX
+- 모던한 UI/UX
 - 갤러리 페이지를 통한 실시간 공유
 - 관리자 페이지를 통한 촬영 이력 관리
 - ngrok을 통한 외부 접속 지원
@@ -364,3 +364,4 @@ npm rebuild sharp
 ---
 
 **Masterpiece Photobooth** | v2.0 | MIT License
+
