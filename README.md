@@ -218,35 +218,6 @@ const PORT = 3000; // 원하는 포트 번호로 변경
 - **템플릿**: `templates/*.ejs` 파일 수정
 - **클라이언트 로직**: `static/js/` 파일 수정
 
-## Git 사용 가이드 (Git Usage)
-
-### .gitignore 설정
-이 프로젝트는 다음 항목들이 자동으로 제외됩니다:
-
-**생성된 파일:**
-- `photos/` - 촬영된 사진
-- `qr_codes/` - 생성된 QR 코드
-- `output/` - 결과물 이미지
-- `downloads/` - 다운로드 파일
-- `dist/` - 빌드 결과물
-
-**의존성 및 설정:**
-- `node_modules/` - Node.js 패키지
-- `package-lock.json` - 의존성 잠금 파일
-- `config.json` - 개인 설정
-- `sessions.json` - 세션 데이터
-
-**시스템 파일:**
-- `.DS_Store` - macOS 메타데이터
-- `.env` - 환경 변수
-- `*.log` - 로그 파일
-
-### 처음 설치하는 경우
-1. 저장소를 클론합니다
-2. `npm install`로 의존성을 설치합니다
-3. `npm start` 또는 `npm run app`으로 실행합니다
-4. 프로그램이 자동으로 필요한 디렉토리를 생성합니다
-
 ## 문제 해결 (Troubleshooting)
 
 ### 웹캠이 작동하지 않는 경우
@@ -364,4 +335,5 @@ npm rebuild sharp
 ---
 
 **Masterpiece Photobooth** | v2.0 | MIT License
+
 
