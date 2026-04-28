@@ -1,151 +1,143 @@
-# 🎬 Masterpiece Photobooth - Electron App
+# Electron App Guide
 
-웹 기반 포토부스 애플리케이션입니다. 깔끔한 디자인과 사용하기 쉬운 인터페이스를 제공합니다.
+Masterpiece Photobooth can run as a desktop-style kiosk application through Electron. The Electron shell loads the local Express server and opens the kiosk start screen.
 
-## ✨ 주요 기능
-
-- 📸 **실시간 카메라 프리뷰** - 웹캠을 통한 라이브 뷰
-- ⏱️ **자동/수동 카운트다운** - 30초 자동 또는 버튼 클릭으로 5초 카운트다운
-- 🎨 **깔끔한 UI** - Tailwind CSS 기반의 모던한 디자인
-- 💾 **자동 저장** - 촬영한 사진 자동 저장
-- 📱 **반응형** - 다양한 화면 크기 지원
-
-## 🚀 실행 방법
-
-### 1. 의존성 설치
-
-```bash
-npm install
-```
-
-### 2. 앱 실행
-
-**macOS/Linux:**
-```bash
-./start.sh
-```
-
-또는
+## Run the Desktop App
 
 ```bash
 npm run app
 ```
 
-**Windows:**
-```
-start.bat
-```
+This command starts:
 
-또는
+1. Express server
+2. Electron window after `http://localhost:3000` is ready
 
-```
-npm run app
-```
+## Run Server and Electron Separately
 
-## 📦 스크립트 명령어
-
-- `npm run start` - Express 서버만 실행
-- `npm run electron` - Electron 앱만 실행
-- `npm run app` - 서버 + Electron 동시 실행 ⭐ **추천**
-- `npm run build` - 배포용 앱 빌드
-
-## 🎮 사용 방법
-
-1. 앱 실행 시 자동으로 촬영 화면이 열립니다
-2. 카메라가 자동으로 켜집니다 (권한 허용 필요)
-3. 30초 카운트다운이 자동으로 시작됩니다
-4. 또는 "촬영하기" 버튼을 클릭하면 5초 카운트다운 시작
-5. 촬영된 사진은 `/photos` 폴더에 자동 저장됩니다
-
-## ⚙️ 설정
-
-### 키오스크 모드 (전체화면 고정)
-
-`electron.js` 파일에서:
-
-```javascript
-kiosk: true  // 키오스크 모드 활성화
-```
-
-### 개발자 도구 열기
-
-`electron.js` 파일에서 주석 해제:
-
-```javascript
-mainWindow.webContents.openDevTools();
-```
-
-### 촬영 매수 변경
-
-`templates/capture.html` 파일에서:
-
-```javascript
-let remainingPhotos = 6;  // 원하는 숫자로 변경
-let totalPhotos = 6;      // 동일하게 변경
-```
-
-## 🗂️ 폴더 구조
-
-```
-photobooth-main/
-├── electron.js           # Electron 메인 프로세스
-├── server.js            # Express 서버
-├── templates/           # HTML 템플릿
-│   ├── capture.html    # 촬영 화면 ⭐
-│   ├── index.html      # 홈 화면
-│   ├── admin.html      # 관리자 화면
-│   └── promo.html      # 갤러리 화면
-├── photos/             # 촬영된 사진 저장
-├── output/             # 최종 결과물
-└── static/             # 정적 파일 (CSS, JS)
-```
-
-## 🔑 단축키
-
-- **ESC** - 앱 종료
-- **✕ 버튼** - 홈으로 돌아가기
-
-## 📱 웹 브라우저에서도 사용 가능
-
-Electron 없이 웹 브라우저에서도 사용할 수 있습니다:
+Terminal 1:
 
 ```bash
-npm run start
+npm start
 ```
 
-그 다음 브라우저에서: `http://localhost:3000/capture`
+Terminal 2:
 
-## 🐛 문제 해결
+```bash
+npm run electron
+```
 
-### 카메라가 안 켜져요
-- 시스템 설정 > 개인정보 보호 및 보안 > 카메라에서 권한 허용
+## Start URL
 
-### 사진이 저장되지 않아요
-- `/photos` 폴더가 존재하는지 확인
-- 폴더 쓰기 권한 확인
+Electron opens:
 
-### 포트 충돌 (EADDRINUSE)
-- 3000 포트가 이미 사용 중입니다
-- `server.js`에서 `PORT` 번호 변경
+```text
+http://localhost:3000/app/start
+```
 
-## 🎨 디자인 커스터마이징
+## Kiosk Behavior
 
-`templates/capture.html` 파일에서 Tailwind CSS 클래스를 수정하여 디자인을 변경할 수 있습니다.
+The Electron window is configured in `electron.js`.
 
-## 📦 배포 (앱 빌드)
+Important options:
 
-macOS .app 또는 Windows .exe 파일 생성:
+- `fullscreen`: starts in fullscreen mode
+- `frame`: controls native window frame visibility
+- `kiosk`: can be enabled for stricter event operation
+- `contextIsolation`: enabled for safer renderer behavior
+- `nodeIntegration`: disabled in the renderer
+
+For production kiosk operation, consider:
+
+- Enable `kiosk: true`
+- Disable developer tools
+- Configure the OS to launch the app at login
+- Disable screen sleep
+- Pre-install camera and printer drivers
+- Test with the exact event camera and printer
+
+## Build Desktop Installers
 
 ```bash
 npm run build
 ```
 
-빌드된 앱은 `/dist` 폴더에 생성됩니다.
+The project uses `electron-builder`.
 
-## 📄 라이선스
+Expected targets:
 
-MIT License
+- Windows: NSIS installer
+- macOS: app/DMG depending on builder environment
 
----
+Windows icon path:
 
-Made with ❤️ by Masterpiece Team
+```text
+assets/icon.ico
+```
+
+macOS icon path:
+
+```text
+assets/icon.icns
+```
+
+Make sure these files exist before creating production installers.
+
+## Camera Notes
+
+Electron uses Chromium camera APIs. Any device that appears as a webcam to the OS should be available in Settings.
+
+For DSLR or mirrorless cameras, use one of these approaches:
+
+- HDMI capture card that appears as a webcam
+- Vendor software saving images into the watched folder
+- Capture One, Lightroom, or similar software saving into the watched folder
+
+## Printer Notes
+
+Printing is delegated to the operating system.
+
+- macOS/Linux: CUPS commands
+- Windows: PowerShell/Windows printer integration
+
+Always test the selected printer on the target machine before an event.
+
+## Troubleshooting
+
+### Camera does not appear
+
+1. Open Settings.
+2. Request camera permission.
+3. Rescan devices.
+4. Test the camera.
+5. Save settings.
+
+If the selected camera fails during capture, the app automatically retries with fallback constraints.
+
+### Electron opens but server is unavailable
+
+Run:
+
+```bash
+npm start
+```
+
+Then check:
+
+```text
+http://localhost:3000/app/start
+```
+
+### Port is already in use
+
+The server tries the next port if the configured port is busy, but Electron expects port `3000`. For production, keep port `3000` available.
+
+## Recommended Production Setup
+
+1. Install Node.js LTS.
+2. Install camera and printer drivers.
+3. Run `npm install`.
+4. Open Settings and test devices.
+5. Run `npm run app`.
+6. Configure OS login item/startup task.
+7. Keep a wired power/network setup where possible.

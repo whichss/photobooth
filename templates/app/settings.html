@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>설정 - Masterpiece</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/kiosk.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
@@ -13,12 +14,51 @@
         }
 
         .setting-card {
+            border: 1px solid #d8dee8;
+            border-radius: 8px;
             transition: all 0.3s ease;
         }
 
         .setting-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
+        }
+
+        input,
+        select {
+            border-radius: 8px !important;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #0f766e !important;
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+        }
+
+        .camera-status {
+            border: 1px solid #d8dee8;
+            border-radius: 8px;
+            background: #f8fafc;
+            padding: 14px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .camera-tools {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -32,14 +72,21 @@
         <div class="w-12"></div>
     </div>
 
-    <div class="max-w-4xl mx-auto px-8 py-12">
+    <div class="max-w-6xl mx-auto px-8 py-12">
+        <div class="mb-8">
+            <div class="kiosk-label mb-4">OPERATOR SETTINGS</div>
+            <h2 class="text-4xl font-black mb-3">운영 설정</h2>
+            <p class="text-gray-600">촬영 흐름, 카메라, QR 저장, 프레임 폴더를 관리합니다.</p>
+        </div>
+
+        <div class="settings-grid">
         <!-- 카메라 설정 -->
-        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+        <div class="setting-card bg-white p-8 mb-6">
             <h2 class="text-2xl font-bold mb-6">카메라 설정</h2>
 
             <div class="mb-6">
                 <label class="block text-sm font-bold mb-3 text-gray-700">카메라 선택</label>
-                <select id="cameraSelect" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                <select id="cameraSelect" class="w-full px-4 py-3 border-2 border-gray-200
                                                       focus:border-blue-500 focus:outline-none">
                     <option value="">카메라를 불러오는 중...</option>
                 </select>
@@ -49,33 +96,93 @@
             </div>
 
             <div class="mb-6">
-                <button onclick="testCamera()"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl">
-                    카메라 테스트
-                </button>
+                <label class="block text-sm font-bold mb-3 text-gray-700">카메라 선택 방식</label>
+                <select id="cameraMode" class="w-full px-4 py-3 border-2 border-gray-200
+                                                focus:border-blue-500 focus:outline-none">
+                    <option value="auto">자동 선택</option>
+                    <option value="selected">선택한 카메라 고정</option>
+                </select>
+                <p class="text-sm text-gray-500 mt-2">
+                    장치 ID가 바뀔 수 있으면 자동 선택을 권장합니다
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-bold mb-3 text-gray-700">2x2 카메라 프로필</label>
+                    <select id="cameraProfile2x2" class="w-full px-4 py-3 border-2 border-gray-200
+                                                         focus:border-blue-500 focus:outline-none">
+                        <option value="portrait">세로형</option>
+                        <option value="landscape">가로형</option>
+                        <option value="square">정방형</option>
+                        <option value="auto">자동</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-3 text-gray-700">1x4 카메라 프로필</label>
+                    <select id="cameraProfile1x4" class="w-full px-4 py-3 border-2 border-gray-200
+                                                         focus:border-blue-500 focus:outline-none">
+                        <option value="landscape">가로형</option>
+                        <option value="portrait">세로형</option>
+                        <option value="square">정방형</option>
+                        <option value="auto">자동</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">프리뷰 맞춤 방식</label>
+                <select id="cameraFit" class="w-full px-4 py-3 border-2 border-gray-200
+                                             focus:border-blue-500 focus:outline-none">
+                    <option value="contain">전체 화면에 맞춤</option>
+                    <option value="cover">화면을 채움</option>
+                </select>
+            </div>
+
+            <div id="cameraStatus" class="camera-status mb-4">카메라 상태를 확인하지 않았습니다.</div>
+
+            <div class="mb-6">
+                <div class="camera-tools">
+                    <button onclick="requestCameraPermission()"
+                            class="bg-gray-200 hover:bg-gray-300 text-black font-bold px-5 py-3">
+                        권한 요청
+                    </button>
+                    <button onclick="refreshCameras()"
+                            class="bg-gray-200 hover:bg-gray-300 text-black font-bold px-5 py-3">
+                        장치 다시 스캔
+                    </button>
+                    <button onclick="testCamera()"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-5 py-3">
+                        카메라 테스트
+                    </button>
+                    <button onclick="autoPickCamera()"
+                            class="bg-black hover:bg-gray-800 text-white font-bold px-5 py-3">
+                        자동 선택 적용
+                    </button>
+                </div>
             </div>
 
             <!-- 카메라 미리보기 -->
             <div id="cameraPreview" class="hidden mt-6">
                 <p class="text-sm font-bold mb-3">미리보기</p>
-                <div class="bg-gray-100 rounded-2xl overflow-hidden">
+                <div class="bg-gray-100 overflow-hidden">
                     <video id="previewVideo" autoplay playsinline class="w-full" style="max-height: 400px;"></video>
                 </div>
                 <button onclick="stopCamera()"
-                        class="mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold px-6 py-3 rounded-xl">
+                        class="mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold px-6 py-3">
                     미리보기 중지
                 </button>
             </div>
         </div>
 
         <!-- 촬영 설정 -->
-        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+        <div class="setting-card bg-white p-8 mb-6">
             <h2 class="text-2xl font-bold mb-6">촬영 설정</h2>
 
             <div class="mb-6">
                 <label class="block text-sm font-bold mb-3 text-gray-700">총 촬영 횟수</label>
                 <input type="number" id="photoCount" value="6" min="4" max="10"
-                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                       class="w-full px-4 py-3 border-2 border-gray-200
                               focus:border-blue-500 focus:outline-none">
                 <p class="text-sm text-gray-500 mt-2">
                     총 촬영할 사진 개수 (4~10장)
@@ -84,17 +191,17 @@
 
             <div class="mb-6">
                 <label class="block text-sm font-bold mb-3 text-gray-700">선택 사진 개수</label>
-                <input type="number" id="selectedCount" value="4" min="2" max="6"
-                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                <input type="number" id="selectedCount" value="4" min="4" max="4" disabled
+                       class="w-full px-4 py-3 border-2 border-gray-200 bg-gray-100
                               focus:border-blue-500 focus:outline-none">
                 <p class="text-sm text-gray-500 mt-2">
-                    최종 선택할 사진 개수 (2~6장)
+                    현재 출력 템플릿은 4장 고정입니다
                 </p>
             </div>
 
             <div class="mb-6">
                 <label class="block text-sm font-bold mb-3 text-gray-700">카운트다운 시간</label>
-                <select id="countdownTime" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                <select id="countdownTime" class="w-full px-4 py-3 border-2 border-gray-200
                                                      focus:border-blue-500 focus:outline-none">
                     <option value="3">3초</option>
                     <option value="5" selected>5초</option>
@@ -151,17 +258,28 @@
         </div>
 
         <!-- 프린터 설정 -->
-        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+        <div class="setting-card bg-white p-8 mb-6">
             <h2 class="text-2xl font-bold mb-6">프린터 설정</h2>
 
             <div class="mb-6">
                 <label class="block text-sm font-bold mb-3 text-gray-700">프린터 선택</label>
                 <input type="text" id="printerName" value="Kodak Dock ERA 6-inch" placeholder="프린터 이름을 입력하세요"
-                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                       class="w-full px-4 py-3 border-2 border-gray-200
                               focus:border-blue-500 focus:outline-none">
                 <p class="text-sm text-gray-500 mt-2">
                     사용할 프린터 이름 (시스템 프린터 목록에서 확인)
                 </p>
+                <div class="mt-3 flex gap-2">
+                    <button onclick="loadPrinters()"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-5 py-3">
+                        프린터 목록 새로고침
+                    </button>
+                    <button onclick="applyFirstPrinter()"
+                            class="bg-gray-200 hover:bg-gray-300 text-black font-bold px-5 py-3">
+                        첫 번째 프린터 적용
+                    </button>
+                </div>
+                <div id="printerList" class="mt-3 text-sm text-gray-500">프린터 목록을 불러오지 않았습니다.</div>
             </div>
 
             <div class="mb-6">
@@ -178,7 +296,7 @@
             <div class="mb-6">
                 <label class="block text-sm font-bold mb-3 text-gray-700">인쇄 매수</label>
                 <input type="number" id="printCopies" value="1" min="1" max="3"
-                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                       class="w-full px-4 py-3 border-2 border-gray-200
                               focus:border-blue-500 focus:outline-none">
                 <p class="text-sm text-gray-500 mt-2">
                     한 번에 인쇄할 매수 (1~3장)
@@ -186,8 +304,40 @@
             </div>
         </div>
 
+        <!-- 외부 카메라 설정 -->
+        <div class="setting-card bg-white p-8 mb-6">
+            <h2 class="text-2xl font-bold mb-6">외부 카메라 확장</h2>
+
+            <div class="mb-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="externalCaptureEnabled"
+                           class="w-5 h-5 rounded border-gray-300">
+                    <span class="ml-3 font-bold">감시 폴더 사용</span>
+                </label>
+                <p class="text-sm text-gray-500 mt-2 ml-8">
+                    DSLR/미러리스 소프트웨어가 저장한 사진을 앱의 사진 폴더로 자동 등록합니다
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-3 text-gray-700">감시 폴더 경로</label>
+                <input type="text" id="externalCaptureDir" placeholder="/Users/lim/Pictures/Camera"
+                       class="w-full px-4 py-3 border-2 border-gray-200
+                              focus:border-blue-500 focus:outline-none">
+                <p class="text-sm text-gray-500 mt-2">
+                    Canon/Nikon/Sony 프로그램, Capture One, Lightroom 등의 자동 저장 폴더를 입력하세요
+                </p>
+            </div>
+
+            <button onclick="loadExternalCaptureStatus()"
+                    class="bg-gray-200 hover:bg-gray-300 text-black font-bold px-5 py-3">
+                감시 상태 확인
+            </button>
+            <div id="externalCaptureStatus" class="mt-3 text-sm text-gray-500">상태를 확인하지 않았습니다.</div>
+        </div>
+
         <!-- QR 코드 설정 -->
-        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+        <div class="setting-card bg-white p-8 mb-6">
             <h2 class="text-2xl font-bold mb-6">QR 코드 설정</h2>
 
             <div class="mb-6">
@@ -203,7 +353,7 @@
 
             <div class="mb-6">
                 <label class="block text-sm font-bold mb-3 text-gray-700">다운로드 유효기간</label>
-                <select id="qrExpiry" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                <select id="qrExpiry" class="w-full px-4 py-3 border-2 border-gray-200
                                              focus:border-blue-500 focus:outline-none">
                     <option value="1">1일</option>
                     <option value="7" selected>7일</option>
@@ -217,7 +367,7 @@
 
             <div class="mb-6">
                 <label class="block text-sm font-bold mb-3 text-gray-700">QR 코드 크기</label>
-                <select id="qrSize" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                <select id="qrSize" class="w-full px-4 py-3 border-2 border-gray-200
                                            focus:border-blue-500 focus:outline-none">
                     <option value="small">작게 (200x200)</option>
                     <option value="medium" selected>보통 (300x300)</option>
@@ -230,7 +380,7 @@
         </div>
 
         <!-- 프레임 관리 -->
-        <div class="setting-card bg-white rounded-3xl p-8 mb-6">
+        <div class="setting-card bg-white p-8 mb-6" style="grid-column: 1 / -1;">
             <h2 class="text-2xl font-bold mb-6">프레임 관리</h2>
 
             <!-- 2x2 프레임 -->
@@ -240,14 +390,14 @@
                 <!-- 업로드 -->
                 <div class="mb-4">
                     <label class="block text-sm font-bold mb-2 text-gray-600">프레임 추가</label>
-                    <input type="file" id="upload2x2" accept="image/png"
-                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                    <input type="file" id="upload2x2" accept="image/png,image/jpeg,image/webp"
+                           class="w-full px-4 py-3 border-2 border-gray-200
                                   focus:border-blue-500 focus:outline-none">
                     <p class="text-sm text-gray-500 mt-2">
-                        PNG 파일만 업로드 가능 (권장 사이즈: 1230 x 1820px)
+                        PNG, JPG, WEBP 업로드 가능 (권장 사이즈: 1230 x 1820px)
                     </p>
                     <button onclick="uploadFrame('2x2')"
-                            class="mt-3 bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl">
+                            class="mt-3 bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3">
                         업로드
                     </button>
                 </div>
@@ -268,14 +418,14 @@
                 <!-- 업로드 -->
                 <div class="mb-4">
                     <label class="block text-sm font-bold mb-2 text-gray-600">프레임 추가</label>
-                    <input type="file" id="upload1x4" accept="image/png"
-                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                    <input type="file" id="upload1x4" accept="image/png,image/jpeg,image/webp"
+                           class="w-full px-4 py-3 border-2 border-gray-200
                                   focus:border-blue-500 focus:outline-none">
                     <p class="text-sm text-gray-500 mt-2">
-                        PNG 파일만 업로드 가능 (권장 사이즈: 630 x 1820px)
+                        PNG, JPG, WEBP 업로드 가능 (권장 사이즈: 630 x 1820px)
                     </p>
                     <button onclick="uploadFrame('1x4')"
-                            class="mt-3 bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl">
+                            class="mt-3 bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3">
                         업로드
                     </button>
                 </div>
@@ -291,7 +441,7 @@
         </div>
 
         <!-- 정보 -->
-        <div class="setting-card bg-white rounded-3xl p-8">
+        <div class="setting-card bg-white p-8" style="grid-column: 1 / -1;">
             <h2 class="text-2xl font-bold mb-6">정보</h2>
 
             <div class="space-y-3 text-sm">
@@ -309,17 +459,18 @@
                 </div>
             </div>
         </div>
+        </div>
 
         <!-- 저장 버튼 -->
         <div class="mt-8 flex gap-4">
             <button onclick="saveSettings()"
                     class="flex-1 bg-black hover:bg-gray-800 text-white font-bold text-lg
-                           py-5 rounded-2xl transition">
+                           py-5 transition">
                 설정 저장
             </button>
             <button onclick="resetSettings()"
                     class="flex-1 bg-gray-200 hover:bg-gray-300 text-black font-bold text-lg
-                           py-5 rounded-2xl transition">
+                           py-5 transition">
                 기본값으로 초기화
             </button>
         </div>
@@ -327,12 +478,15 @@
 
     <script>
         let testStream = null;
+        let availablePrinters = [];
+        let availableCameras = [];
 
         // 카메라 목록 불러오기
         async function loadCameras() {
             try {
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                availableCameras = videoDevices;
 
                 const select = document.getElementById('cameraSelect');
                 select.innerHTML = '<option value="">카메라를 선택하세요...</option>';
@@ -347,16 +501,63 @@
                 if (videoDevices.length === 0) {
                     select.innerHTML = '<option value="">사용 가능한 카메라 없음</option>';
                 }
+                updateCameraStatus();
             } catch (error) {
                 console.error('카메라 목록 로드 실패:', error);
-                alert('카메라 목록을 불러올 수 없습니다.');
+                document.getElementById('cameraStatus').textContent = `카메라 목록을 불러올 수 없습니다: ${error.name || error.message}`;
             }
+        }
+
+        async function requestCameraPermission() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                stream.getTracks().forEach(track => track.stop());
+                await loadCameras();
+                document.getElementById('cameraStatus').textContent = '카메라 권한이 허용되었습니다.';
+            } catch (error) {
+                document.getElementById('cameraStatus').textContent = `카메라 권한 요청 실패: ${error.name || error.message}`;
+            }
+        }
+
+        async function refreshCameras() {
+            await loadCameras();
+            updateCameraStatus();
+        }
+
+        function updateCameraStatus(extra = '') {
+            const select = document.getElementById('cameraSelect');
+            const selected = availableCameras.find(device => device.deviceId === select.value);
+            const labelsReady = availableCameras.some(device => device.label);
+            const lines = [
+                `감지된 카메라: ${availableCameras.length}개`,
+                `선택 방식: ${document.getElementById('cameraMode')?.value || 'auto'}`,
+                `선택 장치: ${selected ? (selected.label || selected.deviceId) : '없음'}`
+            ];
+            if (!labelsReady && availableCameras.length > 0) {
+                lines.push('장치 이름이 보이지 않으면 권한 요청을 먼저 누르세요.');
+            }
+            if (extra) lines.push(extra);
+            document.getElementById('cameraStatus').innerHTML = lines.map(line => `<div>${line}</div>`).join('');
+        }
+
+        function autoPickCamera() {
+            const select = document.getElementById('cameraSelect');
+            const preferred = availableCameras.find(device => /usb|cam|camera|capture|webcam|facetime/i.test(device.label || ''));
+            const picked = preferred || availableCameras[0];
+            if (!picked) {
+                updateCameraStatus('자동 선택할 카메라가 없습니다.');
+                return;
+            }
+            select.value = picked.deviceId;
+            document.getElementById('cameraMode').value = 'selected';
+            updateCameraStatus('자동 선택을 적용했습니다.');
         }
 
         // 카메라 테스트
         async function testCamera() {
             const deviceId = document.getElementById('cameraSelect').value;
-            if (!deviceId) {
+            const cameraMode = document.getElementById('cameraMode').value;
+            if (!deviceId && cameraMode === 'selected') {
                 alert('카메라를 먼저 선택해주세요.');
                 return;
             }
@@ -367,17 +568,21 @@
                     testStream.getTracks().forEach(track => track.stop());
                 }
 
-                // 새 스트림 시작
-                testStream = await navigator.mediaDevices.getUserMedia({
-                    video: { deviceId: { exact: deviceId } }
-                });
+                const constraints = deviceId && cameraMode === 'selected'
+                    ? { deviceId: { exact: deviceId } }
+                    : true;
+                testStream = await navigator.mediaDevices.getUserMedia({ video: constraints, audio: false });
 
                 const video = document.getElementById('previewVideo');
                 video.srcObject = testStream;
+                video.style.objectFit = document.getElementById('cameraFit').value;
                 document.getElementById('cameraPreview').classList.remove('hidden');
+                const track = testStream.getVideoTracks()[0];
+                const settings = track ? track.getSettings() : {};
+                updateCameraStatus(`테스트 중: ${settings.width || '-'} x ${settings.height || '-'}`);
             } catch (error) {
                 console.error('카메라 테스트 실패:', error);
-                alert('카메라를 시작할 수 없습니다.');
+                document.getElementById('cameraStatus').textContent = `카메라 테스트 실패: ${error.name || error.message}`;
             }
         }
 
@@ -391,10 +596,14 @@
         }
 
         // 설정 저장
-        function saveSettings() {
+        async function saveSettings() {
             const settings = {
                 // 카메라 설정
                 cameraId: document.getElementById('cameraSelect').value,
+                cameraMode: document.getElementById('cameraMode').value,
+                cameraFit: document.getElementById('cameraFit').value,
+                cameraProfile2x2: document.getElementById('cameraProfile2x2').value,
+                cameraProfile1x4: document.getElementById('cameraProfile1x4').value,
 
                 // 촬영 설정
                 photoCount: parseInt(document.getElementById('photoCount').value),
@@ -413,45 +622,82 @@
                 // QR 코드 설정
                 enableQR: document.getElementById('enableQR').checked,
                 qrExpiry: parseInt(document.getElementById('qrExpiry').value),
-                qrSize: document.getElementById('qrSize').value
+                qrSize: document.getElementById('qrSize').value,
+
+                // 외부 카메라 설정
+                externalCaptureEnabled: document.getElementById('externalCaptureEnabled').checked,
+                externalCaptureDir: document.getElementById('externalCaptureDir').value
             };
 
             localStorage.setItem('photoboothSettings', JSON.stringify(settings));
-            alert('설정이 저장되었습니다.');
+
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert('브라우저 설정은 저장했지만 서버 설정 저장에 실패했습니다.');
+                    return;
+                }
+
+                localStorage.setItem('photoboothSettings', JSON.stringify(data.settings));
+                alert('설정이 저장되었습니다.');
+                loadExternalCaptureStatus();
+            } catch (error) {
+                console.error('서버 설정 저장 실패:', error);
+                alert('브라우저 설정은 저장했지만 서버 설정 저장에 실패했습니다.');
+            }
         }
 
         // 설정 불러오기
-        function loadSettings() {
-            const savedSettings = localStorage.getItem('photoboothSettings');
-            if (savedSettings) {
-                try {
-                    const settings = JSON.parse(savedSettings);
-
-                    // 카메라 설정
-                    document.getElementById('cameraSelect').value = settings.cameraId || '';
-
-                    // 촬영 설정
-                    document.getElementById('photoCount').value = settings.photoCount || 6;
-                    document.getElementById('selectedCount').value = settings.selectedCount || 4;
-                    document.getElementById('countdownTime').value = settings.countdownTime || 5;
-                    document.getElementById('flashEffect').checked = settings.flashEffect !== false;
-                    document.getElementById('shutterSound').checked = settings.shutterSound !== false;
-                    document.getElementById('mirrorMode').checked = settings.mirrorMode || false;
-                    document.getElementById('fullscreenMode').checked = settings.fullscreenMode !== false;
-
-                    // 프린터 설정
-                    document.getElementById('printerName').value = settings.printerName || 'Kodak Dock ERA 6-inch';
-                    document.getElementById('autoPrint').checked = settings.autoPrint || false;
-                    document.getElementById('printCopies').value = settings.printCopies || 1;
-
-                    // QR 코드 설정
-                    document.getElementById('enableQR').checked = settings.enableQR !== false;
-                    document.getElementById('qrExpiry').value = settings.qrExpiry || 7;
-                    document.getElementById('qrSize').value = settings.qrSize || 'medium';
-                } catch (error) {
-                    console.error('설정 로드 실패:', error);
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings');
+                const data = await response.json();
+                if (data.success) {
+                    applySettingsToForm(data.settings);
+                    localStorage.setItem('photoboothSettings', JSON.stringify(data.settings));
+                    return;
                 }
+            } catch (error) {
+                console.error('서버 설정 로드 실패:', error);
             }
+
+            const savedSettings = localStorage.getItem('photoboothSettings');
+            if (!savedSettings) return;
+
+            try {
+                applySettingsToForm(JSON.parse(savedSettings));
+            } catch (error) {
+                console.error('설정 로드 실패:', error);
+            }
+        }
+
+        function applySettingsToForm(settings) {
+            document.getElementById('cameraSelect').value = settings.cameraId || '';
+            document.getElementById('cameraMode').value = settings.cameraMode || 'auto';
+            document.getElementById('cameraFit').value = settings.cameraFit || 'contain';
+            document.getElementById('cameraProfile2x2').value = settings.cameraProfile2x2 || 'portrait';
+            document.getElementById('cameraProfile1x4').value = settings.cameraProfile1x4 || 'landscape';
+            document.getElementById('photoCount').value = settings.photoCount || 6;
+            document.getElementById('selectedCount').value = settings.selectedCount || 4;
+            document.getElementById('countdownTime').value = settings.countdownTime || 5;
+            document.getElementById('flashEffect').checked = settings.flashEffect !== false;
+            document.getElementById('shutterSound').checked = settings.shutterSound !== false;
+            document.getElementById('mirrorMode').checked = settings.mirrorMode || false;
+            document.getElementById('fullscreenMode').checked = settings.fullscreenMode !== false;
+            document.getElementById('printerName').value = settings.printerName || '';
+            document.getElementById('autoPrint').checked = settings.autoPrint || false;
+            document.getElementById('printCopies').value = settings.printCopies || 1;
+            document.getElementById('enableQR').checked = settings.enableQR !== false;
+            document.getElementById('qrExpiry').value = settings.qrExpiry || 7;
+            document.getElementById('qrSize').value = settings.qrSize || 'medium';
+            document.getElementById('externalCaptureEnabled').checked = settings.externalCaptureEnabled || false;
+            document.getElementById('externalCaptureDir').value = settings.externalCaptureDir || '';
         }
 
         // 기본값으로 초기화
@@ -461,6 +707,10 @@
 
                 // 카메라 설정
                 document.getElementById('cameraSelect').value = '';
+                document.getElementById('cameraMode').value = 'auto';
+                document.getElementById('cameraFit').value = 'contain';
+                document.getElementById('cameraProfile2x2').value = 'portrait';
+                document.getElementById('cameraProfile1x4').value = 'landscape';
 
                 // 촬영 설정
                 document.getElementById('photoCount').value = 6;
@@ -480,8 +730,56 @@
                 document.getElementById('enableQR').checked = true;
                 document.getElementById('qrExpiry').value = 7;
                 document.getElementById('qrSize').value = 'medium';
+                document.getElementById('externalCaptureEnabled').checked = false;
+                document.getElementById('externalCaptureDir').value = '';
 
                 alert('기본값으로 초기화되었습니다.');
+            }
+        }
+
+        async function loadPrinters() {
+            const listEl = document.getElementById('printerList');
+            listEl.textContent = '프린터 목록을 불러오는 중...';
+
+            try {
+                const response = await fetch('/api/devices/printers');
+                const data = await response.json();
+                availablePrinters = data.printers || [];
+
+                if (!data.success || availablePrinters.length === 0) {
+                    listEl.textContent = data.error || '연결된 프린터를 찾지 못했습니다.';
+                    return;
+                }
+
+                listEl.innerHTML = availablePrinters.map(name => `<div class="py-1 font-medium">${name}</div>`).join('');
+            } catch (error) {
+                console.error('프린터 목록 로드 실패:', error);
+                listEl.textContent = '프린터 목록을 불러올 수 없습니다.';
+            }
+        }
+
+        function applyFirstPrinter() {
+            if (!availablePrinters.length) {
+                alert('먼저 프린터 목록을 새로고침해주세요.');
+                return;
+            }
+
+            document.getElementById('printerName').value = availablePrinters[0];
+        }
+
+        async function loadExternalCaptureStatus() {
+            const statusEl = document.getElementById('externalCaptureStatus');
+            statusEl.textContent = '상태 확인 중...';
+
+            try {
+                const response = await fetch('/api/external-capture/status');
+                const data = await response.json();
+                statusEl.textContent = data.active
+                    ? `활성화됨: ${data.directory}`
+                    : `비활성화됨: ${data.directory || '경로 없음'}`;
+            } catch (error) {
+                console.error('외부 카메라 상태 확인 실패:', error);
+                statusEl.textContent = '상태를 확인할 수 없습니다.';
             }
         }
 
@@ -532,8 +830,8 @@
                 return;
             }
 
-            if (!file.type.includes('png')) {
-                alert('PNG 파일만 업로드 가능합니다.');
+            if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+                alert('PNG, JPG, WEBP 파일만 업로드 가능합니다.');
                 return;
             }
 
@@ -598,11 +896,13 @@
         document.getElementById('serverUrl').textContent = window.location.origin;
 
         // 초기화
-        window.addEventListener('load', () => {
-            loadCameras();
-            loadSettings();
+        window.addEventListener('load', async () => {
+            await loadCameras();
+            await loadSettings();
             loadFrames('2x2');
             loadFrames('1x4');
+            loadPrinters();
+            loadExternalCaptureStatus();
         });
 
         // 페이지 종료 시 카메라 중지

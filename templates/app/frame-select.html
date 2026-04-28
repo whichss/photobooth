@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>프레임 선택 - Masterpiece</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/kiosk.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
@@ -16,11 +17,12 @@
         .layout-option {
             transition: all 0.3s ease;
             cursor: pointer;
+            min-height: 360px;
         }
 
         .layout-option.selected {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
+            border-color: #0f766e;
+            background-color: #ecfdf5;
         }
 
         .color-option {
@@ -71,7 +73,7 @@
 <body class="bg-white h-screen flex flex-col">
     <!-- 헤더 -->
     <div class="bg-black py-5 px-8 flex-shrink-0">
-        <h1 class="text-white text-3xl font-bold text-center">프레임 선택</h1>
+        <h1 class="text-white text-3xl font-bold text-center">레이아웃 선택</h1>
     </div>
 
     <!-- 메인 컨텐츠 -->
@@ -79,20 +81,20 @@
         <div class="max-w-5xl w-full">
             <!-- 안내 문구 -->
             <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold mb-3">레이아웃 방식을 선택하세요</h2>
-                <p class="text-lg text-gray-600">촬영할 사진의 배열 방식을 선택해주세요</p>
+                <h2 class="text-3xl font-bold mb-3">최종 사진 형태를 선택하세요</h2>
+                <p class="text-lg text-gray-600">프레임 폴더에 추가한 디자인은 다음 단계에서 자동으로 표시됩니다</p>
             </div>
 
             <!-- 레이아웃 선택 -->
             <div class="grid grid-cols-2 gap-8 mb-8">
-                <div class="layout-option border-4 border-gray-200 rounded-3xl p-10 text-center cursor-pointer hover:border-blue-300 transition"
+                <div class="layout-option border-4 border-gray-200 p-10 text-center cursor-pointer transition"
                      onclick="selectLayout('2x2')" id="layout-2x2">
-                    <div class="text-8xl mb-4">⊞</div>
+                    <div class="text-6xl font-black mb-5">2x2</div>
                     <div class="font-bold text-2xl mb-2">2x2 그리드</div>
-                    <div class="text-base text-gray-600 mb-5">4장의 사진을 정사각형으로 배열</div>
+                    <div class="text-base text-gray-600 mb-5">104mm x 154mm 출력 비율</div>
 
                     <!-- 미리보기 -->
-                    <div class="bg-gray-100 p-3 rounded-2xl inline-block">
+                    <div class="bg-gray-100 p-3 inline-block">
                         <div class="grid grid-cols-2 grid-rows-2 gap-1.5" style="width: 80px; height: 120px;">
                             <div class="bg-gray-300 rounded"></div>
                             <div class="bg-gray-300 rounded"></div>
@@ -102,14 +104,14 @@
                     </div>
                 </div>
 
-                <div class="layout-option border-4 border-gray-200 rounded-3xl p-10 text-center cursor-pointer hover:border-blue-300 transition"
+                <div class="layout-option border-4 border-gray-200 p-10 text-center cursor-pointer transition"
                      onclick="selectLayout('1x4')" id="layout-1x4">
-                    <div class="text-8xl mb-4">▭</div>
+                    <div class="text-6xl font-black mb-5">1x4</div>
                     <div class="font-bold text-2xl mb-2">1x4 세로</div>
-                    <div class="text-base text-gray-600 mb-5">4장의 사진을 세로로 배열</div>
+                    <div class="text-base text-gray-600 mb-5">53mm x 154mm 출력 비율</div>
 
                     <!-- 미리보기 -->
-                    <div class="bg-gray-100 p-3 rounded-2xl inline-block">
+                    <div class="bg-gray-100 p-3 inline-block">
                         <div class="grid grid-cols-1 grid-rows-4 gap-1.5" style="width: 80px; height: 120px;">
                             <div class="bg-gray-300 rounded"></div>
                             <div class="bg-gray-300 rounded"></div>
@@ -123,7 +125,7 @@
             <!-- 다음 버튼 -->
             <button onclick="goNext()" id="nextBtn"
                     class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-2xl
-                           py-6 rounded-3xl transition shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
+                           py-6 transition shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
                     disabled>
                 촬영 시작
             </button>
@@ -146,7 +148,7 @@
             // 선택된 레이아웃 표시
             const selected = document.getElementById(`layout-${layout}`);
             selected.classList.add('selected');
-            selected.style.borderColor = '#3B82F6';
+            selected.style.borderColor = '#0F766E';
 
             // 다음 버튼 활성화
             document.getElementById('nextBtn').disabled = false;

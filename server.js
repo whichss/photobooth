@@ -5,6 +5,8 @@ const crypto = require('crypto');
 const qrcode = require('qrcode');
 const chokidar = require('chokidar');
 const multer = require('multer');
+const os = require('os');
+const { exec, execFile } = require('child_process');
 // photo.py 연동 제거
 // const photoIntegration = require('./photo-integration');
 const ngrok = require('ngrok');
@@ -14,6 +16,74 @@ const PORT = process.env.PORT || 3000;
 // 민감한 정보를 환경 변수로 대체
 const NGROK_AUTH_TOKEN = process.env.NGROK_AUTH_TOKEN || '';
 const NGROK_DOMAIN = process.env.NGROK_DOMAIN || '';
+
+const settingsPath = path.join(__dirname, 'settings.json');
+const defaultSettings = {
+  cameraId: '',
+  cameraMode: 'auto',
+  cameraFit: 'contain',
+  cameraProfile2x2: 'portrait',
+  cameraProfile1x4: 'landscape',
+  photoCount: 6,
+  selectedCount: 4,
+  countdownTime: 5,
+  flashEffect: true,
+  shutterSound: true,
+  mirrorMode: false,
+  fullscreenMode: true,
+  printerName: '',
+  autoPrint: false,
+  printCopies: 1,
+  enableQR: true,
+  qrExpiry: 7,
+  qrSize: 'medium',
+  externalCaptureEnabled: false,
+  externalCaptureDir: path.join(__dirname, 'external_captures')
+};
+
+let appSettings = loadSettingsFromDisk();
+let externalCaptureWatcher = null;
+
+function loadSettingsFromDisk() {
+  try {
+    if (!fs.existsSync(settingsPath)) {
+      fs.writeFileSync(settingsPath, JSON.stringify(defaultSettings, null, 2));
+      return { ...defaultSettings };
+    }
+
+    const parsed = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    return sanitizeSettings(parsed);
+  } catch (error) {
+    console.error('설정 로드 실패:', error);
+    return { ...defaultSettings };
+  }
+}
+
+function sanitizeSettings(settings) {
+  const merged = { ...defaultSettings, ...settings };
+
+  merged.photoCount = Math.min(Math.max(parseInt(merged.photoCount, 10) || 6, 4), 10);
+  merged.cameraMode = ['auto', 'selected'].includes(merged.cameraMode) ? merged.cameraMode : 'auto';
+  merged.cameraFit = ['contain', 'cover'].includes(merged.cameraFit) ? merged.cameraFit : 'contain';
+  merged.cameraProfile2x2 = ['auto', 'portrait', 'landscape', 'square'].includes(merged.cameraProfile2x2) ? merged.cameraProfile2x2 : 'portrait';
+  merged.cameraProfile1x4 = ['auto', 'portrait', 'landscape', 'square'].includes(merged.cameraProfile1x4) ? merged.cameraProfile1x4 : 'landscape';
+  merged.selectedCount = 4;
+  merged.countdownTime = Math.min(Math.max(parseInt(merged.countdownTime, 10) || 5, 3), 10);
+  merged.printCopies = Math.min(Math.max(parseInt(merged.printCopies, 10) || 1, 1), 3);
+  merged.qrExpiry = parseInt(merged.qrExpiry, 10);
+  merged.qrSize = ['small', 'medium', 'large'].includes(merged.qrSize) ? merged.qrSize : 'medium';
+  merged.printerName = String(merged.printerName || '').trim();
+  merged.externalCaptureDir = path.resolve(String(merged.externalCaptureDir || defaultSettings.externalCaptureDir));
+
+  return merged;
+}
+
+function saveSettingsToDisk(settings) {
+  appSettings = sanitizeSettings(settings);
+  fs.writeFileSync(settingsPath, JSON.stringify(appSettings, null, 2));
+  configureExternalCaptureWatcher();
+  return appSettings;
+}
 
 // ngrok 설정
 async function setupNgrok() {
@@ -220,6 +290,50 @@ async function generateQRCode(url) {
 const photosDir = path.join(__dirname, 'photos');
 if (!fs.existsSync(photosDir)) {
   fs.mkdirSync(photosDir, { recursive: true });
+}
+
+function configureExternalCaptureWatcher() {
+  if (externalCaptureWatcher) {
+    externalCaptureWatcher.close();
+    externalCaptureWatcher = null;
+  }
+
+  if (!appSettings.externalCaptureEnabled) return;
+
+  const captureDir = appSettings.externalCaptureDir;
+  try {
+    if (!fs.existsSync(captureDir)) {
+      fs.mkdirSync(captureDir, { recursive: true });
+    }
+
+    externalCaptureWatcher = chokidar.watch(captureDir, {
+      ignored: /(^|[\/\\])\../,
+      ignoreInitial: true,
+      persistent: true,
+      depth: 0
+    });
+
+    externalCaptureWatcher.on('add', (filePath) => {
+      if (!/\.(jpe?g|png|webp)$/i.test(filePath)) return;
+
+      const ext = path.extname(filePath).toLowerCase() || '.jpg';
+      const filename = `external_${Date.now()}${ext}`;
+      const destination = path.join(photosDir, filename);
+
+      fs.copyFile(filePath, destination, (error) => {
+        if (error) {
+          console.error('외부 카메라 사진 복사 실패:', error);
+          return;
+        }
+
+        console.log(`외부 카메라 사진 등록: ${destination}`);
+      });
+    });
+
+    console.log(`외부 카메라 감시 폴더 활성화: ${captureDir}`);
+  } catch (error) {
+    console.error('외부 카메라 감시 설정 실패:', error);
+  }
 }
 
 const watcher = chokidar.watch(photosDir, {
@@ -602,6 +716,103 @@ app.get('/api/photos', (req, res) => {
   res.json(validSessions);
 });
 
+app.get('/api/settings', (req, res) => {
+  res.json({
+    success: true,
+    settings: appSettings
+  });
+});
+
+app.post('/api/settings', express.json({ limit: '1mb' }), (req, res) => {
+  try {
+    const settings = saveSettingsToDisk(req.body || {});
+    res.json({
+      success: true,
+      settings
+    });
+  } catch (error) {
+    console.error('설정 저장 오류:', error);
+    res.status(500).json({
+      success: false,
+      error: '설정 저장 중 오류가 발생했습니다.'
+    });
+  }
+});
+
+function listPrinters(callback) {
+  if (process.platform === 'win32') {
+    exec('powershell -NoProfile -Command "Get-Printer | Select-Object -ExpandProperty Name"', (error, stdout) => {
+      if (error) return callback(error);
+      callback(null, stdout.split(/\r?\n/).map(line => line.trim()).filter(Boolean));
+    });
+    return;
+  }
+
+  exec('lpstat -p', (error, stdout) => {
+    if (error) return callback(error);
+
+    const printers = stdout
+      .split(/\r?\n/)
+      .map(line => {
+        const match = line.match(/^printer\s+(.+?)\s+/);
+        return match ? match[1] : null;
+      })
+      .filter(Boolean);
+
+    callback(null, printers);
+  });
+}
+
+function printImage(filePath, options, callback) {
+  const copies = String(Math.min(Math.max(parseInt(options.copies, 10) || 1, 1), 3));
+  const printerName = String(options.printerName || '').trim();
+
+  if (!fs.existsSync(filePath)) {
+    callback(new Error('인쇄할 파일을 찾을 수 없습니다.'));
+    return;
+  }
+
+  if (process.platform === 'win32') {
+    const script = printerName
+      ? `Start-Process -FilePath '${filePath.replace(/'/g, "''")}' -Verb Print`
+      : `Start-Process -FilePath '${filePath.replace(/'/g, "''")}' -Verb Print`;
+    execFile('powershell', ['-NoProfile', '-Command', script], callback);
+    return;
+  }
+
+  const args = [];
+  if (printerName) args.push('-d', printerName);
+  args.push('-n', copies, filePath);
+  execFile('lp', args, callback);
+}
+
+app.get('/api/devices/printers', (req, res) => {
+  listPrinters((error, printers = []) => {
+    if (error) {
+      return res.json({
+        success: false,
+        printers: [],
+        error: '프린터 목록을 불러올 수 없습니다.'
+      });
+    }
+
+    res.json({
+      success: true,
+      printers
+    });
+  });
+});
+
+app.get('/api/external-capture/status', (req, res) => {
+  res.json({
+    success: true,
+    enabled: appSettings.externalCaptureEnabled,
+    directory: appSettings.externalCaptureDir,
+    active: Boolean(externalCaptureWatcher),
+    exists: fs.existsSync(appSettings.externalCaptureDir)
+  });
+});
+
 // QR 코드 생성 API
 app.get('/api/generate-qr/:hash', async (req, res) => {
   const hash = req.params.hash;
@@ -953,19 +1164,12 @@ app.post('/api/capture', express.json({ limit: '50mb' }), (req, res) => {
 // 사진 처리 API (프레임 합성)
 app.post('/api/process-photos', express.json({ limit: '50mb' }), async (req, res) => {
   try {
-    const { photos, frameColor, frameLayout } = req.body;
+    const { photos, frameColor, frameLayout, frameId, framePath } = req.body;
 
     if (!photos || photos.length !== 4) {
       return res.status(400).json({
         success: false,
         error: '4장의 사진이 필요합니다'
-      });
-    }
-
-    if (!frameColor || !['black', 'white', 'gray'].includes(frameColor)) {
-      return res.status(400).json({
-        success: false,
-        error: '유효하지 않은 프레임 색상입니다'
       });
     }
 
@@ -995,7 +1199,27 @@ app.post('/api/process-photos', express.json({ limit: '50mb' }), async (req, res
       gray: { r: 66, g: 66, b: 66 }
     };
 
-    const bgColor = frameColors[frameColor];
+    let selectedFramePath = null;
+    if (framePath || frameId) {
+      const requestedFrame = framePath
+        ? path.basename(framePath)
+        : path.basename(frameId).match(/\.(png|jpg|jpeg|webp)$/i)
+          ? path.basename(frameId)
+          : `${path.basename(frameId)}.png`;
+      const candidatePath = path.join(__dirname, 'frames', frameLayout, requestedFrame);
+
+      if (fs.existsSync(candidatePath)) {
+        selectedFramePath = candidatePath;
+      }
+    }
+
+    let frameMetadata = null;
+    if (selectedFramePath) {
+      frameMetadata = await sharp(selectedFramePath).metadata();
+    }
+
+    const inferredFrameColor = frameColor && frameColors[frameColor] ? frameColor : 'white';
+    const bgColor = frameColors[inferredFrameColor];
 
     // 실제 프레임 크기 (300 DPI 기준)
     // 1x4: 53mm x 154mm = 630px x 1820px
@@ -1003,13 +1227,24 @@ app.post('/api/process-photos', express.json({ limit: '50mb' }), async (req, res
     let outputWidth, outputHeight;
     let photoPositions;
 
-    if (frameLayout === '2x2') {
+    if (frameMetadata && frameMetadata.width && frameMetadata.height) {
+      outputWidth = frameMetadata.width;
+      outputHeight = frameMetadata.height;
+    } else if (frameLayout === '2x2') {
       // 2x2 그리드 (104mm x 154mm)
       outputWidth = 1230;
       outputHeight = 1820;
+    } else if (frameLayout === '1x4') {
+      // 1x4 세로 (53mm x 154mm)
+      outputWidth = 630;
+      outputHeight = 1820;
+    }
 
-      const margin = 60;  // 상하좌우 여백
-      const gap = 20;     // 사진 간 간격
+    if (frameLayout === '2x2') {
+      // 2x2 그리드 (104mm x 154mm)
+
+      const margin = Math.round(outputWidth * 0.0488);
+      const gap = Math.round(outputWidth * 0.0163);
       const photoWidth = Math.floor((outputWidth - margin * 2 - gap) / 2);
       const photoHeight = Math.floor((outputHeight - margin * 2 - gap) / 2);
 
@@ -1021,17 +1256,14 @@ app.post('/api/process-photos', express.json({ limit: '50mb' }), async (req, res
       ];
     } else if (frameLayout === '1x4') {
       // 1x4 세로 (53mm x 154mm)
-      outputWidth = 630;
-      outputHeight = 1820;
 
-      const marginX = 40;   // 좌우 여백
-      const marginTop = 40; // 상단 여백
-      const marginBottom = 220; // 하단 여백 (문구/로고 공간)
-      const gap = 20;       // 사진 간 간격 (증가)
+      const marginX = Math.round(outputWidth * 0.0635);
+      const marginTop = Math.round(outputHeight * 0.022);
+      const gap = Math.round(outputWidth * 0.0317);
 
       // 16:9 비율로 사진 크기 계산
-      const photoWidth = outputWidth - marginX * 2;  // 550px
-      const photoHeight = Math.floor(photoWidth / 16 * 9); // 309px (16:9 비율)
+      const photoWidth = outputWidth - marginX * 2;
+      const photoHeight = Math.floor(photoWidth / 16 * 9);
 
       photoPositions = [
         { x: marginX, y: marginTop, width: photoWidth, height: photoHeight },
@@ -1041,15 +1273,26 @@ app.post('/api/process-photos', express.json({ limit: '50mb' }), async (req, res
       ];
     }
 
-    // 빈 프레임 생성
-    const frameBuffer = await sharp({
-      create: {
-        width: outputWidth,
-        height: outputHeight,
-        channels: 3,
-        background: bgColor
-      }
-    }).png().toBuffer();
+    const solidFrameBuffer = await sharp({
+        create: {
+          width: outputWidth,
+          height: outputHeight,
+          channels: 3,
+          background: bgColor
+        }
+      }).png().toBuffer();
+
+    const selectedFrameBuffer = selectedFramePath
+      ? await sharp(selectedFramePath)
+        .resize(outputWidth, outputHeight, { fit: 'fill' })
+        .png()
+        .toBuffer()
+      : null;
+
+    const useSelectedFrameAsOverlay = Boolean(frameMetadata && frameMetadata.hasAlpha);
+    const frameBuffer = selectedFrameBuffer && !useSelectedFrameAsOverlay
+      ? selectedFrameBuffer
+      : solidFrameBuffer;
 
     // 각 사진을 리사이즈하고 합성할 준비
     const compositeOperations = [];
@@ -1084,6 +1327,14 @@ app.post('/api/process-photos', express.json({ limit: '50mb' }), async (req, res
       });
     }
 
+    if (selectedFrameBuffer && useSelectedFrameAsOverlay) {
+      compositeOperations.push({
+        input: selectedFrameBuffer,
+        top: 0,
+        left: 0
+      });
+    }
+
     // 프레임에 사진들 합성
     const compositeImage = await sharp(frameBuffer)
       .composite(compositeOperations)
@@ -1103,6 +1354,20 @@ app.post('/api/process-photos', express.json({ limit: '50mb' }), async (req, res
     // 최종 이미지 저장
     fs.writeFileSync(outputPath, compositeImage);
     console.log(`최종 이미지 저장: ${outputPath}`);
+
+    if (appSettings.autoPrint) {
+      printImage(outputPath, {
+        printerName: appSettings.printerName,
+        copies: appSettings.printCopies
+      }, (error) => {
+        if (error) {
+          console.error('자동 인쇄 실패:', error);
+          return;
+        }
+
+        console.log(`자동 인쇄 요청 완료: ${outputFilename}`);
+      });
+    }
 
     // QR 코드 생성 (다운로드 URL)
     const downloadUrl = `${getBaseUrl()}/download?img=output/${outputFilename}`;
@@ -1151,11 +1416,11 @@ const frameStorage = multer.diskStorage({
 const uploadFrame = multer({
   storage: frameStorage,
   fileFilter: function (req, file, cb) {
-    // PNG 파일만 허용
-    if (file.mimetype === 'image/png') {
+    // 프레임 이미지 허용
+    if (['image/png', 'image/jpeg', 'image/webp'].includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('PNG 파일만 업로드 가능합니다.'));
+      cb(new Error('PNG, JPG, WEBP 파일만 업로드 가능합니다.'));
     }
   },
   limits: {
@@ -1178,9 +1443,10 @@ app.get('/api/frames/:layout', (req, res) => {
 
     const files = fs.readdirSync(frameDir);
     const frames = files
-      .filter(file => file.endsWith('.png'))
+      .filter(file => /\.(png|jpg|jpeg|webp)$/i.test(file))
+      .sort((a, b) => a.localeCompare(b, 'ko'))
       .map(file => {
-        const id = file.replace('.png', '');
+        const id = file.replace(/\.(png|jpg|jpeg|webp)$/i, '');
         return {
           id: id,
           name: file,
@@ -1212,7 +1478,7 @@ app.post('/api/frames/upload', uploadFrame.single('frame'), (req, res) => {
       success: true,
       message: '프레임이 업로드되었습니다.',
       frame: {
-        id: filename.replace('.png', ''),
+        id: filename.replace(/\.(png|jpg|jpeg|webp)$/i, ''),
         name: filename,
         path: `/frames/${layout}/${filename}`
       }
@@ -1227,7 +1493,7 @@ app.post('/api/frames/upload', uploadFrame.single('frame'), (req, res) => {
 app.delete('/api/frames/:layout/:filename', (req, res) => {
   try {
     const layout = req.params.layout;
-    const filename = req.params.filename;
+    const filename = path.basename(req.params.filename);
 
     if (layout !== '1x4' && layout !== '2x2') {
       return res.status(400).json({ success: false, error: '잘못된 레이아웃입니다.' });
@@ -1327,12 +1593,31 @@ app.use((err, req, res, next) => {
 
 // getBaseUrl 함수 수정
 function getBaseUrl() {
-  return `https://${NGROK_DOMAIN}`;  // ngrok 도메인 사용
+  if (process.env.EXTERNAL_URL) {
+    return process.env.EXTERNAL_URL.replace(/\/$/, '');
+  }
+
+  if (NGROK_DOMAIN) {
+    return NGROK_DOMAIN.startsWith('http')
+      ? NGROK_DOMAIN.replace(/\/$/, '')
+      : `https://${NGROK_DOMAIN}`;
+  }
+
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return `http://${iface.address}:${PORT}`;
+      }
+    }
+  }
+
+  return `http://localhost:${PORT}`;
 }
 
 // 접속 가능한 URL 및 네트워크 정보 로그
 function logNetworkInfo() {
-  const interfaces = require('os').networkInterfaces();
+  const interfaces = os.networkInterfaces();
   console.log('\n===== 네트워크 접속 정보 =====');
   console.log('다음 URL로 접속할 수 있습니다:');
   
@@ -1384,6 +1669,7 @@ function startServer(port) {
 
 // 시작 시 기존 폴더 스캔
 scanExistingFolders();
+configureExternalCaptureWatcher();
 
 // 서버 시작
 startServer(PORT);
@@ -1391,8 +1677,6 @@ startServer(PORT);
 // 프린터 연결 확인 함수
 function checkPrinter() {
   try {
-    const { exec } = require('child_process');
-    
     if (process.platform === 'win32') {
       // Windows 환경
       exec('wmic printer list status', (error, stdout, stderr) => {

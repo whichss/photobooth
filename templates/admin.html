@@ -7,31 +7,32 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/kiosk.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         body {
             font-family: 'Pretendard', sans-serif;
-            background: #FFFFFF;
+            background: #f4f6f8;
             line-height: 1.7;
         }
 
         .header-gradient {
-            background: #000000;
+            background: #111827;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .brand-logo {
             color: #FFFFFF;
             font-weight: 800;
-            letter-spacing: -0.03em;
+            letter-spacing: 0;
         }
 
         .card {
-            background: #FAFAFA;
-            border-radius: 24px;
+            background: #FFFFFF;
+            border-radius: 8px;
             transition: all 0.2s ease;
-            border: none;
+            border: 1px solid #d8dee8;
             overflow: hidden;
         }
 
@@ -49,15 +50,16 @@
         }
 
         .tab-container {
-            background: #FAFAFA;
-            border-radius: 16px;
+            background: #FFFFFF;
+            border-radius: 8px;
+            border: 1px solid #d8dee8;
             padding: 0.5rem;
             display: inline-flex;
         }
 
         .tab-button {
             padding: 1rem 1.5rem;
-            border-radius: 12px;
+            border-radius: 8px;
             transition: all 0.2s ease;
             font-weight: 600;
             font-size: 1rem;
@@ -72,14 +74,14 @@
         }
 
         .tab-active {
-            background: #000000;
+            background: #0f766e;
             color: white !important;
             font-weight: 700;
         }
 
         .action-button {
             padding: 0.75rem 1.25rem;
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 0.9375rem;
             font-weight: 600;
             transition: all 0.2s ease;
@@ -107,19 +109,19 @@
         }
 
         .action-button-primary {
-            background: #000000;
+            background: #0f766e;
             color: #FFFFFF;
         }
 
         .action-button-primary:hover {
-            background: #1A1A1A;
+            background: #115e59;
         }
 
         .home-button {
             background: white;
             color: #000000;
             padding: 0.875rem 1.5rem;
-            border-radius: 12px;
+            border-radius: 8px;
             font-weight: 700;
             border: none;
             transition: all 0.2s ease;
@@ -152,7 +154,7 @@
         .dialog-content {
             background-color: white;
             padding: 3rem;
-            border-radius: 24px;
+            border-radius: 8px;
             max-width: 400px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -161,7 +163,7 @@
         .photo-preview {
             aspect-ratio: 3/4;
             background: #FAFAFA;
-            border-radius: 20px;
+            border-radius: 8px;
             overflow: hidden;
         }
     </style>
@@ -214,6 +216,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">미리보기</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">날짜</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QR</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
             </tr>
         </thead>
@@ -233,20 +236,20 @@
             <div id="framesView" class="mt-6 hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- 2x2 프레임 -->
-                    <div class="bg-white rounded-3xl p-8 shadow">
+                    <div class="bg-white p-8 shadow" style="border-radius: 8px; border: 1px solid #d8dee8;">
                         <h3 class="text-2xl font-bold mb-6">2x2 프레임 (104mm x 154mm)</h3>
 
                         <!-- 업로드 -->
                         <div class="mb-6">
                             <label class="block text-sm font-bold mb-3 text-gray-700">프레임 추가</label>
-                            <input type="file" id="adminUpload2x2" accept="image/png"
-                                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                            <input type="file" id="adminUpload2x2" accept="image/png,image/jpeg,image/webp"
+                                   class="w-full px-4 py-3 border-2 border-gray-200
                                           focus:border-black focus:outline-none">
                             <p class="text-sm text-gray-500 mt-2">
-                                PNG 파일만 업로드 가능 (권장 사이즈: 1230 x 1820px)
+                                PNG, JPG, WEBP 업로드 가능 (권장 사이즈: 1230 x 1820px)
                             </p>
                             <button onclick="adminUploadFrame('2x2')"
-                                    class="mt-4 bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 rounded-xl w-full">
+                                    class="mt-4 bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 w-full">
                                 <i class="fas fa-upload mr-2"></i>업로드
                             </button>
                         </div>
@@ -261,20 +264,20 @@
                     </div>
 
                     <!-- 1x4 프레임 -->
-                    <div class="bg-white rounded-3xl p-8 shadow">
+                    <div class="bg-white p-8 shadow" style="border-radius: 8px; border: 1px solid #d8dee8;">
                         <h3 class="text-2xl font-bold mb-6">1x4 프레임 (53mm x 154mm)</h3>
 
                         <!-- 업로드 -->
                         <div class="mb-6">
                             <label class="block text-sm font-bold mb-3 text-gray-700">프레임 추가</label>
-                            <input type="file" id="adminUpload1x4" accept="image/png"
-                                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200
+                            <input type="file" id="adminUpload1x4" accept="image/png,image/jpeg,image/webp"
+                                   class="w-full px-4 py-3 border-2 border-gray-200
                                           focus:border-black focus:outline-none">
                             <p class="text-sm text-gray-500 mt-2">
-                                PNG 파일만 업로드 가능 (권장 사이즈: 630 x 1820px)
+                                PNG, JPG, WEBP 업로드 가능 (권장 사이즈: 630 x 1820px)
                             </p>
                             <button onclick="adminUploadFrame('1x4')"
-                                    class="mt-4 bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 rounded-xl w-full">
+                                    class="mt-4 bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 w-full">
                                 <i class="fas fa-upload mr-2"></i>업로드
                             </button>
                         </div>
@@ -291,6 +294,26 @@
             </div>
         </div>
     </main>
+
+    <div id="statusMessage" style="display: none; position: fixed; right: 24px; bottom: 24px; z-index: 70; padding: 14px 18px; border-radius: 8px; font-weight: 800;"></div>
+
+    <div id="qrDialog" class="dialog">
+        <div class="dialog-content">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">QR 코드</h2>
+                <button onclick="closeQrDialog()" class="text-gray-500 hover:text-gray-900 text-2xl" aria-label="닫기">×</button>
+            </div>
+            <div class="text-center">
+                <div class="inline-block bg-white p-4 mb-4" style="border: 1px solid #d8dee8; border-radius: 8px;">
+                    <img id="qrImage" alt="QR 코드" class="w-64 h-64">
+                </div>
+                <p id="qrUrl" class="text-sm text-gray-500 break-all mb-4"></p>
+                <button id="copyQrUrlBtn" class="action-button action-button-primary w-full">
+                    <i class="fas fa-link mr-2"></i>링크 복사
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 상태 및 전역 변수
@@ -520,6 +543,33 @@
                 console.error('클립보드 복사 실패:', err);
             });
         }
+
+        async function showQrCode(hash) {
+            try {
+                showLoading();
+                const response = await fetch(`/api/generate-qr/${hash}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    showError(data.error || 'QR 코드를 생성할 수 없습니다');
+                    return;
+                }
+
+                document.getElementById('qrImage').src = data.qr_b64;
+                document.getElementById('qrUrl').textContent = data.qr_url || '';
+                document.getElementById('copyQrUrlBtn').onclick = () => copyToClipboard(data.qr_url || '');
+                document.getElementById('qrDialog').style.display = 'flex';
+            } catch (error) {
+                console.error('QR 코드 오류:', error);
+                showError('QR 코드를 불러오는 중 오류가 발생했습니다');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function closeQrDialog() {
+            document.getElementById('qrDialog').style.display = 'none';
+        }
         
         // 세션 삭제
         function deleteSession(hash) {
@@ -596,6 +646,9 @@
             const statusMessage = document.getElementById('statusMessage');
             statusMessage.textContent = message;
             statusMessage.className = 'status-success';
+            statusMessage.style.background = '#ecfdf5';
+            statusMessage.style.color = '#065f46';
+            statusMessage.style.border = '1px solid #99f6e4';
             statusMessage.style.display = 'block';
             setTimeout(() => {
                 statusMessage.style.display = 'none';
@@ -607,6 +660,9 @@
             const statusMessage = document.getElementById('statusMessage');
             statusMessage.textContent = message;
             statusMessage.className = 'status-error';
+            statusMessage.style.background = '#fff1f2';
+            statusMessage.style.color = '#be123c';
+            statusMessage.style.border = '1px solid #fecdd3';
             statusMessage.style.display = 'block';
             setTimeout(() => {
                 statusMessage.style.display = 'none';
@@ -659,8 +715,8 @@
                 return;
             }
 
-            if (!file.type.includes('png')) {
-                alert('PNG 파일만 업로드 가능합니다.');
+            if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+                alert('PNG, JPG, WEBP 파일만 업로드 가능합니다.');
                 return;
             }
 

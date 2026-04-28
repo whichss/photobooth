@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>촬영 - Masterpiece</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/kiosk.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
@@ -28,7 +29,57 @@
 
         video {
             object-fit: contain;
-            background: #D1D5DB;
+            background: #111827;
+        }
+
+        .capture-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr 280px;
+            height: 100vh;
+            background: #111827;
+        }
+
+        .capture-side {
+            background: #f8fafc;
+            border: 1px solid #d8dee8;
+            padding: 28px;
+        }
+
+        .camera-stage {
+            position: relative;
+            background: #05070a;
+            overflow: hidden;
+        }
+
+        .camera-error {
+            display: none;
+            position: absolute;
+            inset: 32px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #d8dee8;
+            border-radius: 8px;
+            padding: 28px;
+            z-index: 20;
+            color: #111827;
+        }
+
+        .camera-error.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .camera-meta {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            background: rgba(17, 24, 39, 0.72);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+            z-index: 10;
         }
 
         .flash-effect {
@@ -49,20 +100,36 @@
     <!-- Flash 효과 -->
     <div id="flashEffect" class="flash-effect"></div>
 
-    <div class="flex h-screen">
+    <div class="capture-layout">
         <!-- 왼쪽: 카운트다운 -->
-        <div class="w-1/4 bg-gray-50 flex items-center justify-center">
-            <div id="countdown" class="text-9xl font-bold text-blue-500">30</div>
+        <div class="capture-side flex items-center justify-center">
+            <div>
+                <div class="text-sm font-bold text-gray-500 mb-4 text-center">COUNTDOWN</div>
+                <div id="countdown" class="text-9xl font-bold text-blue-500 text-center">30</div>
+            </div>
         </div>
 
         <!-- 중앙: 카메라 프리뷰 -->
-        <div class="w-2/4 bg-gray-300 relative">
+        <div class="camera-stage">
             <video id="cameraPreview" autoplay playsinline class="w-full h-full"></video>
             <canvas id="canvas" style="display: none;"></canvas>
+            <div id="cameraMeta" class="camera-meta">카메라 준비 중...</div>
+            <div id="cameraError" class="camera-error">
+                <h2 class="text-2xl font-black">카메라를 시작할 수 없습니다</h2>
+                <p id="cameraErrorMessage" class="text-gray-600"></p>
+                <div class="flex gap-3 mt-2">
+                    <button onclick="retryCamera()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-5 py-3">
+                        다시 시도
+                    </button>
+                    <button onclick="goSettings()" class="bg-gray-200 hover:bg-gray-300 text-black font-bold px-5 py-3">
+                        설정으로 이동
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- 오른쪽: 정보 -->
-        <div class="w-1/4 bg-gray-50 flex flex-col relative">
+        <div class="capture-side flex flex-col relative">
             <!-- 취소 버튼 -->
             <button onclick="cancel()"
                     class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-2xl">
@@ -74,7 +141,7 @@
                 <p class="text-gray-500 text-base mb-3">남은 촬영 횟수</p>
                 <div id="photoCount" class="text-8xl font-bold text-gray-800 mb-10">6</div>
 
-                <div class="bg-gray-100 rounded-xl px-6 py-5 mb-8 text-center">
+                <div class="bg-gray-100 px-6 py-5 mb-8 text-center">
                     <p class="text-sm text-gray-600 mb-2">카메라를 보고 포즈를</p>
                     <p class="text-sm text-gray-600 mb-2">예쁘게 취해주세요</p>
                     <p class="text-sm text-gray-600">시간 만료 시 자동 촬영됩니다</p>
@@ -82,7 +149,7 @@
 
                 <button id="captureBtn" onclick="manualCapture()"
                         class="bg-blue-500 hover:bg-blue-600 text-white font-bold
-                               px-12 py-5 rounded-2xl text-lg shadow-lg
+                               px-12 py-5 text-lg shadow-lg
                                transition transform hover:-translate-y-1 active:scale-95">
                     촬영하기
                 </button>
@@ -91,9 +158,12 @@
     </div>
 
     <script>
-        // 총 6장 촬영, 나중에 4장 선택
+        let savedSettings = JSON.parse(localStorage.getItem('photoboothSettings') || '{}');
+
+        // 총 촬영 후 4장 선택
         const frameLayout = sessionStorage.getItem('frameLayout') || '2x2';
-        const TOTAL_PHOTOS = 6; // 총 6장 촬영
+        let TOTAL_PHOTOS = 6;
+        let MANUAL_COUNTDOWN = 5;
         let remainingPhotos = TOTAL_PHOTOS;
         let countdownValue = 30; // 자동 촬영은 30초
         let countdownInterval = null;
@@ -101,43 +171,114 @@
         let videoStream = null;
         let isFirstPhoto = true;
         let countdownStartTime = 0; // 카운트다운 시작 시간
+        let cameraReady = false;
 
         console.log(`선택된 레이아웃: ${frameLayout}, 촬영 장수: ${TOTAL_PHOTOS}장`);
 
-        // 카메라 초기화
-        async function initCamera() {
+        async function loadRuntimeSettings() {
             try {
-                // 레이아웃에 따라 카메라 해상도 설정
-                let videoConstraints;
-                if (frameLayout === '2x2') {
-                    // 2x2: 3:4 비율 (예: 1440x1920)
-                    videoConstraints = {
-                        width: { ideal: 1440 },
-                        height: { ideal: 1920 },
-                        aspectRatio: { ideal: 3/4 },
-                        facingMode: 'user'
-                    };
-                } else if (frameLayout === '1x4') {
-                    // 1x4: 16:9 비율 (1920x1080)
-                    videoConstraints = {
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 },
-                        aspectRatio: { ideal: 16/9 },
-                        facingMode: 'user'
-                    };
+                const response = await fetch('/api/settings');
+                const data = await response.json();
+                if (data.success) {
+                    savedSettings = data.settings || {};
+                    localStorage.setItem('photoboothSettings', JSON.stringify(savedSettings));
                 }
-
-                videoStream = await navigator.mediaDevices.getUserMedia({
-                    video: videoConstraints
-                });
-                const videoElement = document.getElementById('cameraPreview');
-                videoElement.srcObject = videoStream;
-
-                console.log(`카메라 설정 완료 - 레이아웃: ${frameLayout}, 비율: ${frameLayout === '2x2' ? '3:4' : '16:9'}`);
             } catch (error) {
-                console.error('카메라 오류:', error);
-                alert('카메라에 접근할 수 없습니다.');
+                console.warn('서버 설정을 불러오지 못해 브라우저 설정을 사용합니다.', error);
             }
+
+            TOTAL_PHOTOS = Math.min(Math.max(parseInt(savedSettings.photoCount, 10) || 6, 4), 10);
+            MANUAL_COUNTDOWN = Math.min(Math.max(parseInt(savedSettings.countdownTime, 10) || 5, 3), 10);
+            remainingPhotos = TOTAL_PHOTOS;
+        }
+
+        function getProfileConstraints(profile) {
+            if (profile === 'portrait') {
+                return { width: { ideal: 1440 }, height: { ideal: 1920 }, aspectRatio: { ideal: 3 / 4 }, facingMode: 'user' };
+            }
+            if (profile === 'landscape') {
+                return { width: { ideal: 1920 }, height: { ideal: 1080 }, aspectRatio: { ideal: 16 / 9 }, facingMode: 'user' };
+            }
+            if (profile === 'square') {
+                return { width: { ideal: 1440 }, height: { ideal: 1440 }, aspectRatio: { ideal: 1 }, facingMode: 'user' };
+            }
+            return { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' };
+        }
+
+        function buildCameraAttempts() {
+            const profile = frameLayout === '2x2'
+                ? (savedSettings.cameraProfile2x2 || 'portrait')
+                : (savedSettings.cameraProfile1x4 || 'landscape');
+            const primary = getProfileConstraints(profile);
+            const attempts = [];
+
+            if (savedSettings.cameraMode === 'selected' && savedSettings.cameraId) {
+                attempts.push({ ...primary, deviceId: { exact: savedSettings.cameraId } });
+                attempts.push({ width: primary.width, height: primary.height, facingMode: 'user' });
+            } else if (savedSettings.cameraId) {
+                attempts.push({ ...primary, deviceId: { ideal: savedSettings.cameraId } });
+            }
+
+            attempts.push(primary);
+            attempts.push({ width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' });
+            attempts.push(true);
+            return attempts;
+        }
+
+        async function initCamera() {
+            hideCameraError();
+            cameraReady = false;
+
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+
+            const attempts = buildCameraAttempts();
+            let lastError = null;
+
+            for (const constraints of attempts) {
+                try {
+                    videoStream = await navigator.mediaDevices.getUserMedia({ video: constraints, audio: false });
+                    const videoElement = document.getElementById('cameraPreview');
+                    videoElement.srcObject = videoStream;
+                    videoElement.style.transform = savedSettings.mirrorMode ? 'scaleX(-1)' : '';
+                    videoElement.style.objectFit = savedSettings.cameraFit || 'contain';
+
+                    const track = videoStream.getVideoTracks()[0];
+                    const trackSettings = track ? track.getSettings() : {};
+                    document.getElementById('cameraMeta').textContent =
+                        `${track?.label || 'Camera'} · ${trackSettings.width || '-'} x ${trackSettings.height || '-'} · ${frameLayout}`;
+                    cameraReady = true;
+                    return;
+                } catch (error) {
+                    lastError = error;
+                    console.warn('카메라 시도 실패:', error.name || error.message, constraints);
+                }
+            }
+
+            showCameraError(lastError);
+        }
+
+        function showCameraError(error) {
+            const panel = document.getElementById('cameraError');
+            const message = document.getElementById('cameraErrorMessage');
+            message.textContent = `${error?.name || 'UnknownError'}: ${error?.message || '카메라 권한 또는 장치 연결을 확인해주세요.'}`;
+            panel.classList.add('active');
+            document.getElementById('cameraMeta').textContent = '카메라 오류';
+        }
+
+        function hideCameraError() {
+            document.getElementById('cameraError').classList.remove('active');
+        }
+
+        async function retryCamera() {
+            await initCamera();
+            if (cameraReady) startAutoCountdown();
+        }
+
+        function goSettings() {
+            window.location.href = '/app/settings';
         }
 
         // 자동 카운트다운
@@ -178,8 +319,8 @@
 
             console.log('수동 촬영 시작 - 5초 카운트다운');
 
-            // 5초 카운트다운 시작
-            countdownValue = 5;
+            // 설정된 수동 카운트다운 시작
+            countdownValue = MANUAL_COUNTDOWN;
             updateCountdownUI();
 
             const btn = document.getElementById('captureBtn');
@@ -214,10 +355,16 @@
         // 사진 촬영
         async function capturePhoto() {
             try {
+                if (!cameraReady) {
+                    showCameraError(new Error('카메라가 아직 준비되지 않았습니다.'));
+                    return;
+                }
                 // Flash
-                const flash = document.getElementById('flashEffect');
-                flash.classList.add('active');
-                setTimeout(() => flash.classList.remove('active'), 200);
+                if (savedSettings.flashEffect !== false) {
+                    const flash = document.getElementById('flashEffect');
+                    flash.classList.add('active');
+                    setTimeout(() => flash.classList.remove('active'), 200);
+                }
 
                 // 캡처
                 const video = document.getElementById('cameraPreview');
@@ -226,6 +373,10 @@
                 canvas.height = video.videoHeight;
 
                 const ctx = canvas.getContext('2d');
+                if (savedSettings.mirrorMode) {
+                    ctx.translate(canvas.width, 0);
+                    ctx.scale(-1, 1);
+                }
                 ctx.drawImage(video, 0, 0);
 
                 const imageData = canvas.toDataURL('image/jpeg', 0.95);
@@ -287,11 +438,12 @@
 
         // 초기화
         window.addEventListener('load', async () => {
+            await loadRuntimeSettings();
             // 촬영 횟수 UI 업데이트
             document.getElementById('photoCount').textContent = TOTAL_PHOTOS;
 
             await initCamera();
-            startAutoCountdown();
+            if (cameraReady) startAutoCountdown();
         });
 
         window.addEventListener('beforeunload', () => {

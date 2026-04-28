@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>완성! - Masterpiece</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/kiosk.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         body { font-family: 'Pretendard', sans-serif; }
@@ -23,7 +24,7 @@
     <!-- 헤더 -->
     <div class="bg-black py-5">
         <h1 class="text-white text-3xl font-bold text-center">
-            🎉 촬영 완료!
+            촬영 완료
         </h1>
     </div>
 
@@ -31,24 +32,25 @@
     <div class="max-w-6xl mx-auto px-8 py-8">
         <div class="grid grid-cols-2 gap-12 items-center" style="max-height: 80vh;">
             <!-- 왼쪽: 완성된 사진 -->
-            <div class="bg-gray-50 rounded-3xl p-6 flex items-center justify-center" style="max-height: 75vh;">
+            <div class="result-card p-6 flex items-center justify-center" style="max-height: 75vh;">
                 <div class="result-image" style="max-height: 100%; max-width: 100%;">
                     <img id="finalImage" src="" alt="완성된 사진"
-                         class="rounded-2xl shadow-2xl" style="max-height: 65vh; width: auto; object-fit: contain;">
+                         class="shadow-2xl" style="max-height: 65vh; width: auto; object-fit: contain; border-radius: 8px;">
                 </div>
             </div>
 
             <!-- 오른쪽: QR 코드 & 다운로드 -->
             <div class="flex flex-col justify-center">
                 <div class="text-center mb-8">
-                    <h2 class="text-2xl font-bold mb-3">QR 코드로 다운로드</h2>
+                    <div class="kiosk-label mx-auto mb-5">FREE DOWNLOAD</div>
+                    <h2 class="text-2xl font-bold mb-3">QR 코드로 저장</h2>
                     <p class="text-gray-600 mb-6 text-sm">
                         QR 코드를 스캔하여<br>
                         사진을 다운로드하세요
                     </p>
 
                     <!-- QR 코드 -->
-                    <div class="inline-block bg-white p-6 rounded-2xl shadow-lg">
+                    <div class="inline-block bg-white p-6 shadow-lg" style="border-radius: 8px; border: 1px solid #d8dee8;">
                         <img id="qrCode" src="" alt="QR 코드"
                              class="w-48 h-48">
                     </div>
@@ -58,13 +60,13 @@
                 <div class="space-y-3">
                     <button onclick="downloadPhoto()"
                             class="w-full bg-black text-white font-bold text-lg
-                                   py-4 rounded-2xl hover:bg-gray-800 transition">
+                                   py-4 hover:bg-gray-800 transition">
                         직접 다운로드
                     </button>
 
                     <button onclick="restart()"
                             class="w-full bg-white text-black font-bold text-lg
-                                   py-4 rounded-2xl border-2 border-black
+                                   py-4 border-2 border-black
                                    hover:bg-gray-50 transition">
                         처음으로
                     </button>

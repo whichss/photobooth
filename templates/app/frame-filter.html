@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>프레임 디자인 선택 - Masterpiece</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/kiosk.css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
@@ -17,11 +18,14 @@
         .frame-option {
             transition: all 0.3s ease;
             cursor: pointer;
-            border-radius: 12px;
+            border-radius: 8px;
             border: 3px solid #E5E7EB;
             background: white;
-            padding: 15px 20px;
-            text-align: center;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-align: left;
         }
 
         .frame-option:hover {
@@ -30,20 +34,41 @@
         }
 
         .frame-option.selected {
-            border-color: #3B82F6;
+            border-color: #0F766E;
             background: #EFF6FF;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
         }
 
         .preview-container {
             background: #F3F4F6;
-            border-radius: 20px;
+            border-radius: 8px;
             padding: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100%;
             max-height: 75vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-frame-overlay {
+            position: absolute;
+            inset: 20px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .frame-thumb {
+            width: 74px;
+            height: 104px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #F3F4F6;
+            flex: 0 0 auto;
         }
 
         .preview-2x2 {
@@ -57,6 +82,8 @@
             aspect-ratio: 1230/1820;
             padding: 4.88%;
             box-sizing: border-box;
+            position: relative;
+            z-index: 10;
         }
 
         .preview-1x4 {
@@ -73,6 +100,8 @@
             padding-left: 6.35%;
             padding-right: 6.35%;
             box-sizing: border-box;
+            position: relative;
+            z-index: 10;
         }
 
         .timer-bar {
@@ -142,6 +171,7 @@
         <!-- 좌측: 큰 미리보기 -->
         <div class="w-5/12 h-full flex items-center justify-center">
             <div class="preview-container">
+                <div id="previewFrameOverlay" class="preview-frame-overlay"></div>
                 <div id="previewGrid" class="preview-2x2">
                     <!-- JavaScript로 채워짐 -->
                 </div>
@@ -172,7 +202,7 @@
 
                 if (data.success) {
                     availableFrames = data.frames.map(frame => ({
-                        id: frame.id,
+                        id: frame.name,
                         name: frame.name,
                         path: frame.path,
                         description: frame.description,
@@ -181,8 +211,10 @@
 
                     console.log(`프레임 ${availableFrames.length}개 로드됨`);
 
-                    // 프레임 옵션 렌더링
                     renderFrames();
+                    if (!selectedFrame && availableFrames.length > 0) {
+                        selectFrame(availableFrames[0].id);
+                    }
                 } else {
                     console.error('프레임 목록 로드 실패');
                     availableFrames = [];
@@ -258,13 +290,16 @@
 
             // 프레임 선택 시 배경색 변경 (실제 프레임 적용은 서버에서)
             const parentDiv = container.closest('.preview-container');
+            const overlay = document.getElementById('previewFrameOverlay');
             if (frameId) {
                 const frame = availableFrames.find(f => f.id === frameId);
                 if (frame) {
                     parentDiv.style.background = frame.bgColor;
+                    overlay.style.backgroundImage = `url("${frame.path}")`;
                 }
             } else {
                 parentDiv.style.background = '#F3F4F6';
+                overlay.style.backgroundImage = '';
             }
         }
 
@@ -272,6 +307,16 @@
         function renderFrames() {
             const grid = document.getElementById('frameGrid');
             grid.innerHTML = '';
+
+            if (availableFrames.length === 0) {
+                grid.innerHTML = `
+                    <div class="text-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-8">
+                        <h3 class="text-gray-800 font-bold text-xl">사용할 프레임이 없습니다</h3>
+                        <p class="text-gray-500 text-sm mt-2">frames/${frameLayout} 폴더에 PNG, JPG, WEBP 파일을 넣어주세요.</p>
+                    </div>
+                `;
+                return;
+            }
 
             availableFrames.forEach(frame => {
                 const div = document.createElement('div');
@@ -283,8 +328,11 @@
                 const frameName = frame.path.split('/').pop().replace(/\.(png|jpg|jpeg)$/i, '');
 
                 div.innerHTML = `
-                    <h3 class="text-gray-800 font-bold text-lg">${frameName}</h3>
-                    <p class="text-gray-500 text-sm mt-1">${frame.description}</p>
+                    <img class="frame-thumb" src="${frame.path}" alt="${frameName}">
+                    <div class="min-w-0">
+                        <h3 class="text-gray-800 font-bold text-lg truncate">${frameName}</h3>
+                        <p class="text-gray-500 text-sm mt-1">자동 등록된 프레임</p>
+                    </div>
                 `;
 
                 grid.appendChild(div);
@@ -302,7 +350,7 @@
 
             // 선택된 프레임 표시
             const selected = document.getElementById(`frame-${frameId}`);
-            selected.classList.add('selected');
+            if (selected) selected.classList.add('selected');
 
             // 미리보기 업데이트
             renderPreview(frameId);
@@ -331,13 +379,21 @@
             headerNextBtn.disabled = true;
 
             try {
-                // frameId를 frameColor로 변환
-                const frameColorMap = {
-                    'black_frame': 'black',
-                    'white_frame': 'white',
-                    'gray_frame': 'gray'
-                };
-                const frameColor = frameColorMap[selectedFrame] || 'black';
+                const frame = availableFrames.find(f => f.id === selectedFrame);
+                if (!frame) {
+                    alert('선택한 프레임을 찾을 수 없습니다.');
+                    headerNextBtn.textContent = '확인';
+                    headerNextBtn.disabled = false;
+                    return;
+                }
+
+                // 기존 기본 프레임과의 호환을 위해 색상도 함께 전달
+                const selectedName = selectedFrame.toLowerCase();
+                const frameColor = selectedName.includes('black')
+                    ? 'black'
+                    : selectedName.includes('gray') || selectedName.includes('grey')
+                        ? 'gray'
+                        : 'white';
 
                 // 레이아웃은 그대로 전달 (이미 1x4 또는 2x2)
                 const serverLayout = frameLayout;
@@ -349,7 +405,9 @@
                     body: JSON.stringify({
                         photos: selectedPhotos,
                         frameColor: frameColor,
-                        frameLayout: serverLayout
+                        frameLayout: serverLayout,
+                        frameId: selectedFrame,
+                        framePath: frame.path
                     })
                 });
 
